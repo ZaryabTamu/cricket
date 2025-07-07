@@ -43,16 +43,6 @@ async def fetch_user_characters(user_id):
 async def harem_handler(client: Client, message: Message):
     user_id = message.from_user.id
 
-    # Check if the user is in the support channel
-    if not await check_support_channel(client, user_id):
-        keyboard = [[InlineKeyboardButton("Join Support Channel", url=f"https://t.me/{SUPPORT_CHANNEL.lstrip('@')}")]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        await message.reply_text(
-            f"Please join our support channel {SUPPORT_CHANNEL} to use this command!",
-            reply_markup=reply_markup
-        )
-        return
-
     # Proceed with existing logic if user is in the channel
     page = 0
     user = await user_collection.find_one({"id": user_id})

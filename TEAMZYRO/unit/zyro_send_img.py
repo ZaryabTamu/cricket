@@ -14,18 +14,22 @@ async def delete_message(chat_id, message_id, context):
         print(f"Error deleting message: {e}")
 
 RARITY_WEIGHTS = {
-    "⚪️ Low": (40, True),              # Most frequent
-    "🟠 Medium": (20, True),           # Less frequent than Low
-    "🔴 High": (12, True),             # Rare but obtainable
-    "🎩 Special Edition": (8, True),   # Very rare
-    "🪽 Elite Edition": (6, True),     # Extremely rare
-    "🪐 Exclusive": (4, True),         # Ultra-rare
-    "💞 Valentine": (2, False),         # Special Valentine's rarity
-    "🎃 Halloween": (2, False),        # Halloween themed rarity (DISABLED)
-    "❄️ Winter": (1.5, False),          # Winter themed rarity
-    "🏖 Summer": (1.2, False),          # Summer-themed rarity
-    "🎗 Royal": (0.5, False),           # Royal rarity (Bid only)
-    "💸 Luxury Edition": (0.5, False)   # Luxury Edition (Shop only)
+    "⚪️ Common": (40, True),          # Most frequent
+    "🟢 Medium": (20, True),          # Less frequent than Common
+    "🟣 Rare": (12, True),            # Rare but obtainable
+    "🟡 Legendary": (8, True),        # Very rare
+    "💮 Special Edition": (6, True),  # Extremely rare
+    "🔮 Limited Edition": (4, True),  # Ultra-rare
+    "🎐 Celestial": (2.9, True),      # Legendary and mythical
+    "💖 Valentine": (2, False),        # Special Valentine's rarity
+    "🎃 Halloween": (2, False),       # Halloween themed rarity (DISABLED)
+    "❄️ Winter": (1.5, True),         # Winter themed rarity
+    "💸 Expensive": (0.5, False),     # Expensive rarity (DISABLED)
+    "💌 AMV": (0.1, False),           # AMV rarity (DISABLED)
+    "🏖 Summer": (1.2, False),         # Summer-themed rarity
+    "🧬 X-Verse": (0.8, False),        # Sci-fi / futuristic rarity
+    "✨ Neon": (0.5, True),
+    "⚜ Royal": (0.0, False)
 }
 
 async def send_image(update: Update, context: CallbackContext) -> None:

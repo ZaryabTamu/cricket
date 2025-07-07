@@ -85,6 +85,44 @@ async def pay(client: Client, message: Message):
         f"💰 Your New Balance: {updated_recipient_balance} coins"
     )
 
+@app.on_message(filters.command("redeemtoken"))
+async def redeem_token(client: Client, message: Message):
+    user_id = message.from_user.id
+    args = message.command
+
+    if len(args) < 2:
+        await message.reply_text("Usage: /redeemtoken <amount>")
+        return
+
+    try:
+        amount = int(args[1])
+        if amount <= 0:
+            raise ValueError("Amount must be a positive number.")
+        if amount % 1000 != 0:
+            raise ValueError("Amount must be a multiple of 1000 (e.g., 1000, 2000, 3000).")
+    except ValueError as e:
+        error_message = str(e) if "multiple of 1000" in str(e) else "Invalid amount. Please enter a valid number."
+        await message.reply_text(error_message)
+        return
+
+    user_balance, user_tokens = await get_balance(user_id)
+    if user_balance < amount:
+        await message.reply_text("Insufficient coin balance to redeem tokens.")
+        return
+
+    tokens_to_add = amount // 1000  # Calculate number of tokens (1 token per 1000 coins)
+    await user_collection.update_one(
+        {'id': user_id},
+        {'$inc': {'balance': -amount, 'tokens': tokens_to_add}}
+    )
+
+    updated_balance, updated_tokens = await get_balance(user_id)
+    await message.reply_text(
+        f"✅ Successfully redeemed {tokens_to_add} token(s) for {amount} coins.\n"
+        f"💰 New Balance: {updated_balance} coins\n"
+        f"🎟 New Tokens: {updated_tokens}"
+    )
+
 @app.on_message(filters.command("kill"))
 @require_power("VIP")
 async def kill_handler(client, message):

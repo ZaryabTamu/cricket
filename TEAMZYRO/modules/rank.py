@@ -117,6 +117,6 @@ async def tokens_callback(client, callback_query):
         user_id = user.get("id", "Unknown")
         first_name = user.get("first_name", "Unknown")
         tokens = user.get("tokens", 0)
-        caption += f"{rank}. <a href='tg://user?id={user_id}'><b>{first_name}</b></a>: 🪙 {tokens} Tokens\n"
+        caption += f"{rank}. <a href='tg://user?id={user_id}'><b>{first_name}</b></a>: 🎟 {tokens} Tokens\n"
 
     await update_caption(callback_query, caption, "tokens")

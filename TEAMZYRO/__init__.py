@@ -25,13 +25,17 @@ def LOGGER(name: str) -> logging.Logger:
     return logging.getLogger(name)
 
 # ---------------------------- CONSTANTS ---------------------------------
-api_id = os.getenv("API_ID", "24965086")
-api_hash = os.getenv("API_HASH", "b9c764ce47c010e1a887f19fea54f648")
-TOKEN = os.getenv("TOKEN", "7687059872:AAFUheD7rLuymtk3ItAydrhWjw4CDZ8YuAE")
-GLOG = os.getenv("GLOG", "Zlog12")
-CHARA_CHANNEL_ID = os.getenv("CHARA_CHANNEL_ID", "Zlog12")
+api_id = 28731656
+api_hash = "22f05593e2f2f365ebc1fcc03446a8c8"
+
+
+TOKEN = "7392456702:AAEPBt5qkAaP5edIg5_wP3kI00ERdeoH3KA"
+CHARA_CHANNEL_ID = "none2025databese"
+GLOG = CHARA_CHANNEL_ID
+
 SUPPORT_CHAT_ID = os.getenv("SUPPORT_CHAT_ID", "-1002309742084")
-mongo_url = os.getenv("MONGO_URL", "mongodb+srv://Alisha:Alisha123@cluster0.yqcpftw.mongodb.net/?retryWrites=true&w=majority")
+mongo_url = "mongodb+srv://harshmanjhi1801:webapp@cluster0.xxwc4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+
 
 MUSJ_JOIN = os.getenv("MUSJ_JOIN", "username")
 
@@ -57,14 +61,14 @@ ZYRO = Client("Shivu", api_id=api_id, api_hash=api_hash, bot_token=TOKEN)
 
 # -------------------------- DATABASE SETUP ------------------------------
 ddw = AsyncIOMotorClient(mongo_url)
-db = ddw['hinata_waifu']
+db = ddw['gaming_create']
 
 # Collections
 user_totals_collection = db['gaming_totals']
-group_user_totals_collection = db['gaming_group_total']
-top_global_groups_collection = db['gaming_global_groups']
-pm_users = db['gaming_pm_users']
-destination_collection = db['gamimg_user_collection']
+group_user_totals_collection = db['gaming_group_total1']
+top_global_groups_collection = db['gaming_global_groups1']
+pm_users = db['gaming_pm_users1']
+destination_collection = db['gamimg_user_collection1']
 destination_char = db['gaming_anime_characters']
 
 # -------------------------- GLOBAL VARIABLES ----------------------------

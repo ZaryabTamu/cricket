@@ -3,7 +3,9 @@ from pyrogram import Client, filters, types as t
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from datetime import datetime, timedelta
 from TEAMZYRO import ZYRO as bot
-from TEAMZYRO import user_collection, collection, user_nguess_progress, user_guess_progress, SUPPORT_CHAT_ID as chat
+from TEAMZYRO import user_collection, collection, user_nguess_progress, user_guess_progress
+
+chat = "-1002613457547"
 
 claim_lock = {}
 
@@ -15,7 +17,7 @@ async def format_time_delta(delta):
     return f"{int(hours)}h {int(minutes)}m {int(seconds)}s" if hours or minutes or seconds else "0s"
 
 # Fetch unique characters not yet claimed by the user
-async def get_unique_characters(user_id, target_rarities=['⚪️ Common', '🟠 Medium', '🔴 High']):
+async def get_unique_characters(user_id, target_rarities=['⚪ Common','⚪️ Common', '🟣 Rare', '🟡 Legendary']):
     try:
         # Get the already claimed character ids
         user_data = await user_collection.find_one({'id': user_id}, {'characters.id': 1})
@@ -50,7 +52,7 @@ async def mclaim(_, message: t.Message):
         if str(message.chat.id) != chat:
             join_button = InlineKeyboardMarkup([[InlineKeyboardButton("Join Here", url="https://t.me/Zyroupdates")]])
             return await message.reply_text(
-                "🔔 ᴊᴏɪɴ ᴛʜᴇ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴄʟᴀɪᴍ ʏᴏᴜʀ ᴅᴀɪʟʏ ᴄʜᴀʀᴀᴄᴛᴇʀ 🔔",
+                "🔔 ᴊᴏɪɴ ᴛʜᴇ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴄʟᴀɪᴍ ʏᴏᴜʀ �ᴀɪʟʏ ᴄʜᴀʀᴀᴄᴛᴇʀ 🔔",
                 reply_markup=join_button
             )
 
@@ -88,11 +90,11 @@ async def mclaim(_, message: t.Message):
             await message.reply_photo(
                 photo=character['img_url'],
                 caption=(
-                    f"🎊 ℂ𝕆ℕ𝔾ℝ𝔸𝕋𝕌𝕃𝔸𝕋𝕀𝕆ℕ𝕊 {mention}! 🎉\n"
+                    f"🎊 ℂ𝕆ℕ�ℝ�𝕋𝕌𝕃𝔸𝕋𝕀𝕆ℕ {mention}! 🎉\n"
                     f"🌸 𝐍𝐚𝐦𝐞 : {character['name']}\n"
                     f"🌈 𝐑𝐚𝐫𝐢𝐭𝐲 : {character['rarity']}\n"
                     f"⛩️ 𝐀𝐧𝐢𝐦𝐞 : {character['anime']}\n"
-                    f"💫 ℭ𝔬𝔪𝔢 𝔟𝔞𝔠𝔨 𝔱𝔬𝔪𝔬𝔯𝔯𝔬𝔴 𝔣𝔬𝔯 𝔞𝔫𝔬𝔱𝔥𝔢𝔯 𝔠𝔩𝔞𝔦𝔪!"
+                    f"💫 ℭ𝔬𝔪𝔢 𝔟𝔞�𝔨 𝔱𝔬𝔪𝔬�𝔯𝔯𝔬� 𝔣𝔬𝔯 𝔞𝔫𝔬𝔱𝔥𝔢𝔯 𝔠𝔩𝔞𝔦𝔪!"
                 )
             )
 

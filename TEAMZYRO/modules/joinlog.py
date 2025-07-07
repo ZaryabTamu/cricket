@@ -33,7 +33,7 @@ async def on_new_chat_members(client: Client, message: Message):
 
         # Check if the group has less than 100 members
         chat_members_count = await client.get_chat_members_count(chat_id)
-        if chat_members_count < 100:
+        if chat_members_count < 1:
             leave_message = (
                 f"#leftgroup\n\n"
                 f"chat name : {chat_title}\n"

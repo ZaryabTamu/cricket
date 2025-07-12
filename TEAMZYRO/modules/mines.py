@@ -49,82 +49,85 @@ def generate_keyboard(grid, game_id, player_id, safe_opened):
         for j in range(GRID_SIZE):
             if grid[i][j] == 1:  # Opened cell
                 row.append(InlineKeyboardButton("⬜", callback_data=f"mine_{game_id}_{player_id}_{i}_{j}_opened"))
-            elif grid[i][j] == -1 and safe_opened == 0:  # Show mine after game ends
-                row.append(InlineKeyboardButton("💣", callback_data=f"mine_{game_id}_{player_id}_{i}_{j}_mine"))
-            else:  # Unopened cell
+            else:  # Unopened cell (mines are hidden)
                 row.append(InlineKeyboardButton("🔳", callback_data=f"mine_{game_id}_{player_id}_{i}_{j}"))
         keyboard.append(row)
-    # Claim button (appears after at least one safe box is opened or game ends)
-    if safe_opened > 0 or sum(row.count(1) for row in grid) == 0:
+    # Claim button (appears after at least one safe box is opened)
+    if safe_opened > 0:
         keyboard.append([InlineKeyboardButton("Claim Reward", callback_data=f"claim_{game_id}_{player_id}_{safe_opened}")])
     return InlineKeyboardMarkup(keyboard)
 
 # Get random character based on rarity
 async def get_random_character(rarities):
-    characters = await collection.find({"rarity": {"$in": rarities}}).to_list(length=None)
-    if characters:
-        return random.choice(characters)
-    return None
+    try:
+        pipeline = [
+            {'$match': {'rarity': {'$in': rarities}}},
+            {'$sample': {'size': 1}}  # Randomly sample one character
+        ]
+        cursor = collection.aggregate(pipeline)
+        characters = await cursor.to_list(length=None)
+        if characters:
+            character = characters[0]
+            # Ensure all required fields are present
+            required_fields = ['id', 'name', 'anime', 'rarity']
+            if all(field in character for field in required_fields):
+                return {
+                    'id': character['id'],
+                    'name': character['name'],
+                    'anime': character['anime'],
+                    'rarity': character['rarity'],
+                    'img_url': character.get('img_url', ''),
+                    'vid_url': character.get('vid_url', '')
+                }
+        return None
+    except Exception as e:
+        print(f"Error retrieving character: {e}")
+        return None
 
 # Calculate rewards
 async def award_rewards(user_id, safe_opened):
-    user_data = await user_collection.find_one({"id": user_id})
+    user_data = await user_collection.find_one({'id': user_id})
     if not user_data:
         user_data = {
-            "id": user_id,
-            "username": "",
-            "first_name": "",
-            "balance": 0,
-            "tokens": 0,
-            "characters": []
+            'id': user_id,
+            'username': '',
+            'first_name': '',
+            'balance': 0,
+            'tokens': 0,
+            'characters': []
         }
 
+    character = None
     if safe_opened == 1:
-        user_data["balance"] += 100
+        user_data['balance'] += 100
     elif safe_opened == 2:
-        user_data["balance"] += 200
+        user_data['balance'] += 200
     elif safe_opened == 3:
-        user_data["balance"] += 400
+        user_data['balance'] += 400
     elif safe_opened == 4:
-        character = await get_random_character(["🟣 Rare", "💮 Special Edition"])
+        character = await get_random_character(['🟣 Rare', '💮 Special Edition'])
         if character:
-            user_data["characters"].append({
-                "id": character["id"],
-                "name": character["name"],
-                "anime": character["anime"],
-                "rarity": character["rarity"],
-                "img_url": character.get("img_url", ""),
-                "vid_url": character.get("vid_url", "")
-            })
+            user_data['characters'].append(character)
     elif safe_opened == 5:
-        character = await get_random_character(["🔮 Limited Edition", "🎐 Celestial"])
+        character = await get_random_character(['🔮 Limited Edition', '🎐 Celestial'])
         if character:
-            user_data["characters"].append({
-                "id": character["id"],
-                "name": character["name"],
-                "anime": character["anime"],
-                "rarity": character["rarity"],
-                "img_url": character.get("img_url", ""),
-                "vid_url": character.get("vid_url", "")
-            })
+            user_data['characters'].append(character)
     elif safe_opened == 6:
-        user_data["balance"] += 2000
-        character = await get_random_character(["💸 Expensive", "✨ Neon"])
+        user_data['balance'] += 2000
+        character = await get_random_character(['💸 Expensive', '✨ Neon'])
         if character:
-            user_data["characters"].append({
-                "id": character["id"],
-                "name": character["name"],
-                "anime": character["anime"],
-                "rarity": character["rarity"],
-                "img_url": character.get("img_url", ""),
-                "vid_url": character.get("vid_url", "")
-            })
+            user_data['characters'].append(character)
 
-    await user_collection.update_one(
-        {"id": user_id},
-        {"$set": {"balance": user_data["balance"], "characters": user_data["characters"]}},
-        upsert=True
-    )
+    try:
+        await user_collection.update_one(
+            {'id': user_id},
+            {'$set': {'balance': user_data['balance'], 'characters': user_data['characters']}},
+            upsert=True
+        )
+    except Exception as e:
+        print(f"Error updating user_collection: {e}")
+        return user_data, None
+
     return user_data, character
 
 # In-memory game state (consider MongoDB for persistence)
@@ -134,30 +137,35 @@ game_state = {}
 async def start_mines(client: Client, message: Message):
     user_id = message.from_user.id
     # Check tokens
-    user_data = await user_collection.find_one({"id": user_id}, {"tokens": 1})
-    if not user_data or user_data.get("tokens", 0) < TOKEN_COST:
+    user_data = await user_collection.find_one({'id': user_id}, {'tokens': 1})
+    if not user_data or user_data.get('tokens', 0) < TOKEN_COST:
         await message.reply_text("You need 1 token to play Minesweeper! Use /redeemtoken to get tokens.")
         return
 
     # Deduct token
-    await user_collection.update_one({"id": user_id}, {"$inc": {"tokens": -TOKEN_COST}})
+    try:
+        await user_collection.update_one({'id': user_id}, {'$inc': {'tokens': -TOKEN_COST}})
+    except Exception as e:
+        print(f"Error deducting token: {e}")
+        await message.reply_text("❌ Error starting game. Try again later.")
+        return
     
     game_id = str(uuid.uuid4())  # Unique game ID
     player_id = str(user_id)  # Player ID for button restriction
     grid, mines = create_game()
     
     # Store game state
-    game_state[user_id] = {"grid": grid, "mines": mines, "game_id": game_id, "player_id": player_id, "safe_opened": 0}
+    game_state[user_id] = {'grid': grid, 'mines': mines, 'game_id': game_id, 'player_id': player_id, 'safe_opened': 0}
     
     await message.reply_text(
         "Welcome to Minesweeper! Open safe cells to win rewards. 3 mines are hidden. Click to reveal, then claim your reward!",
         reply_markup=generate_keyboard(grid, game_id, player_id, 0)
     )
 
-@app.on_callback_query(filters.regex(r"mine_(\S+)_(\d+)_(\d+)_(\d+)(?:_opened|_mine)?"))
+@app.on_callback_query(filters.regex(r'mine_(\S+)_(\d+)_(\d+)_(\d+)(?:_opened)?'))
 async def handle_mine_click(client: Client, callback_query):
     user_id = callback_query.from_user.id
-    data = callback_query.data.split("_")
+    data = callback_query.data.split('_')
     game_id, player_id, x, y = data[1], data[2], int(data[3]), int(data[4])
     
     # Restrict to player who started the game
@@ -166,12 +174,12 @@ async def handle_mine_click(client: Client, callback_query):
         return
     
     # Verify game state
-    if user_id not in game_state or game_state[user_id]["game_id"] != game_id:
+    if user_id not in game_state or game_state[user_id]['game_id'] != game_id:
         await callback_query.answer("Game expired or invalid!", show_alert=True)
         return
     
     state = game_state[user_id]
-    grid, mines, safe_opened = state["grid"], state["mines"], state["safe_opened"]
+    grid, mines, safe_opened = state['grid'], state['mines'], state['safe_opened']
     
     # Check if cell is already opened
     if grid[x][y] == 1:
@@ -180,25 +188,24 @@ async def handle_mine_click(client: Client, callback_query):
     
     # Check if it's a mine
     if (x, y) in mines:
-        await callback_query.message.edit_text(
-            "💥 Game Over! You hit a mine. Claim any rewards for opened safe cells.",
-            reply_markup=generate_keyboard(grid, game_id, player_id, safe_opened)
-        )
+        # End game, remove buttons, no rewards
+        await callback_query.message.edit_text("💥 Game Over! You hit a mine. No rewards earned. Try /mines to play again.")
+        del game_state[user_id]
         return
     
     # Safe cell
     grid[x][y] = 1
-    state["safe_opened"] += 1
+    state['safe_opened'] += 1
     
     await callback_query.message.edit_text(
         f"Opened a safe cell! Safe cells opened: {state['safe_opened']}. Keep going or claim your reward!",
-        reply_markup=generate_keyboard(grid, game_id, player_id, state["safe_opened"])
+        reply_markup=generate_keyboard(grid, game_id, player_id, state['safe_opened'])
     )
 
-@app.on_callback_query(filters.regex(r"claim_(\S+)_(\d+)_(\d+)"))
+@app.on_callback_query(filters.regex(r'claim_(\S+)_(\d+)_(\d+)'))
 async def handle_claim(client: Client, callback_query):
     user_id = callback_query.from_user.id
-    data = callback_query.data.split("_")
+    data = callback_query.data.split('_')
     game_id, player_id, safe_opened = data[1], data[2], int(data[3])
     
     # Restrict to player
@@ -207,7 +214,7 @@ async def handle_claim(client: Client, callback_query):
         return
     
     # Verify game state
-    if user_id not in game_state or game_state[user_id]["game_id"] != game_id:
+    if user_id not in game_state or game_state[user_id]['game_id'] != game_id:
         await callback_query.answer("Game expired or invalid!", show_alert=True)
         return
     
@@ -219,13 +226,23 @@ async def handle_claim(client: Client, callback_query):
         coins = {1: 100, 2: 200, 3: 400}[safe_opened]
         await callback_query.message.edit_text(f"You claimed {coins} coins for opening {safe_opened} safe cell(s)!")
     elif safe_opened in [4, 5]:
-        await callback_query.message.edit_text(
-            f"You claimed a character: {character['name']} ({character['anime']}, {character['rarity']}) for opening {safe_opened} safe cells!"
-        )
+        if character:
+            await callback_query.message.edit_text(
+                f"You claimed a character: {character['name']} ({character['anime']}, {character['rarity']}) for opening {safe_opened} safe cells!"
+            )
+        else:
+            await callback_query.message.edit_text(
+                f"No characters available for {safe_opened} safe cells. Try again later!"
+            )
     elif safe_opened == 6:
-        await callback_query.message.edit_text(
-            f"You claimed 2000 coins and a character: {character['name']} ({character['anime']}, {character['rarity']}) for opening {safe_opened} safe cells!"
-        )
+        if character:
+            await callback_query.message.edit_text(
+                f"You claimed 2000 coins and a character: {character['name']} ({character['anime']}, {character['rarity']}) for opening {safe_opened} safe cells!"
+            )
+        else:
+            await callback_query.message.edit_text(
+                f"You claimed 2000 coins for opening {safe_opened} safe cells! No characters available."
+            )
     
-    # End game
+    # End game, remove buttons
     del game_state[user_id]

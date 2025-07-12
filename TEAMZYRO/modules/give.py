@@ -2,8 +2,9 @@ from pyrogram import filters
 from TEAMZYRO import app, sudo_users, user_collection, require_power
 
 # Power required: "give_coin"
-@require_power("give_coin")
+
 @app.on_message(filters.command("givec") & filters.reply)
+@require_power("give_coin")
 async def give_coins(_, message):
     try:
         # Command format: /givec 1000 (must be replying to user)

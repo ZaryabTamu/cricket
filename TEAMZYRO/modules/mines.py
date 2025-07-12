@@ -31,6 +31,7 @@ rarity_map = {
 GRID_SIZE = 3  # 3x3 grid
 NUM_MINES = 3  # 3 mines
 TOKEN_COST = 1  # 1 token to start
+MAX_MINE_HITS = 2  # Game over after 2 mine hits
 
 # Initialize game state
 def create_game():
@@ -41,7 +42,7 @@ def create_game():
     return grid, mines
 
 # Generate inline keyboard for the game
-def generate_keyboard(grid, game_id, player_id, safe_opened):
+def generate_keyboard(grid, game_id, player_id, safe_opened, mine_hits):
     keyboard = []
     # Grid buttons
     for i in range(GRID_SIZE):
@@ -154,12 +155,19 @@ async def start_mines(client: Client, message: Message):
     player_id = str(user_id)  # Player ID for button restriction
     grid, mines = create_game()
     
-    # Store game state
-    game_state[user_id] = {'grid': grid, 'mines': mines, 'game_id': game_id, 'player_id': player_id, 'safe_opened': 0}
+    # Store game state with mine_hits
+    game_state[user_id] = {
+        'grid': grid,
+        'mines': mines,
+        'game_id': game_id,
+        'player_id': player_id,
+        'safe_opened': 0,
+        'mine_hits': 0
+    }
     
     await message.reply_text(
-        "Welcome to Minesweeper! Open safe cells to win rewards. 3 mines are hidden. Click to reveal, then claim your reward!",
-        reply_markup=generate_keyboard(grid, game_id, player_id, 0)
+        "Welcome to Minesweeper! Open safe cells to win rewards. 3 mines are hidden. Survive one mine hit, but two will end the game! Click to reveal, then claim your reward!",
+        reply_markup=generate_keyboard(grid, game_id, player_id, 0, 0)
     )
 
 @app.on_callback_query(filters.regex(r'mine_(\S+)_(\d+)_(\d+)_(\d+)(?:_opened)?'))
@@ -179,7 +187,7 @@ async def handle_mine_click(client: Client, callback_query):
         return
     
     state = game_state[user_id]
-    grid, mines, safe_opened = state['grid'], state['mines'], state['safe_opened']
+    grid, mines, safe_opened, mine_hits = state['grid'], state['mines'], state['safe_opened'], state['mine_hits']
     
     # Check if cell is already opened
     if grid[x][y] == 1:
@@ -188,9 +196,17 @@ async def handle_mine_click(client: Client, callback_query):
     
     # Check if it's a mine
     if (x, y) in mines:
-        # End game, remove buttons, no rewards
-        await callback_query.message.edit_text("💥 Game Over! You hit a mine. No rewards earned. Try /mines to play again.")
-        del game_state[user_id]
+        state['mine_hits'] += 1
+        if state['mine_hits'] >= MAX_MINE_HITS:
+            # End game, remove buttons, no rewards
+            await callback_query.message.edit_text("💥 Game Over! You hit two mines. No rewards earned. Try /mines to play again.")
+            del game_state[user_id]
+            return
+        # Survive first mine hit
+        await callback_query.message.edit_text(
+            f"💥 You hit a mine but survived! One more hit will end the game. Safe cells opened: {safe_opened}. Keep going or claim your reward!",
+            reply_markup=generate_keyboard(grid, game_id, player_id, safe_opened, mine_hits)
+        )
         return
     
     # Safe cell
@@ -198,8 +214,8 @@ async def handle_mine_click(client: Client, callback_query):
     state['safe_opened'] += 1
     
     await callback_query.message.edit_text(
-        f"Opened a safe cell! Safe cells opened: {state['safe_opened']}. Keep going or claim your reward!",
-        reply_markup=generate_keyboard(grid, game_id, player_id, state['safe_opened'])
+        f"Opened a safe cell! Safe cells opened: {state['safe_opened']}. Survive one mine hit, but two will end the game! Keep going or claim your reward!",
+        reply_markup=generate_keyboard(grid, game_id, player_id, state['safe_opened'], mine_hits)
     )
 
 @app.on_callback_query(filters.regex(r'claim_(\S+)_(\d+)_(\d+)'))

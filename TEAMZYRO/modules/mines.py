@@ -66,7 +66,7 @@ def generate_keyboard(grid, game_id, player_id, safe_opened, mine_hits):
         keyboard.append([InlineKeyboardButton("Claim Reward", callback_data=f"claim_{game_id}_{player_id}_{safe_opened}")])
     return InlineKeyboardMarkup(keyboard)
 
-# Get random character based on rarity
+# Get random character based on rarity - FIXED VERSION
 async def get_random_character(user_id, safe_opened):
     try:
         # Check user's filter_rarity
@@ -75,8 +75,23 @@ async def get_random_character(user_id, safe_opened):
 
         # Determine rarities based on filter_rarity or safe_opened
         if filter_rarity:
-            rarities = [filter_rarity]
+            # FIXED: Ensure filter_rarity is used exactly as stored
+            # Handle both string and integer filter_rarity values
+            if isinstance(filter_rarity, int):
+                # If stored as integer, convert to rarity string
+                rarities = [rarity_map.get(filter_rarity)]
+            else:
+                # If stored as string, use directly
+                rarities = [filter_rarity]
+            
+            # Remove None values in case of invalid rarity
+            rarities = [r for r in rarities if r is not None]
+            
+            # Debug print to help troubleshoot
+            print(f"User {user_id} filter_rarity: {filter_rarity}, using rarities: {rarities}")
+            
         else:
+            # Default behavior when no filter is set
             if safe_opened == 4:
                 rarities = ['🟣 Rare', '💮 Special Edition']
             elif safe_opened == 5:
@@ -86,28 +101,39 @@ async def get_random_character(user_id, safe_opened):
             else:
                 return None  # No character for safe_opened < 4
 
+        # Ensure we have valid rarities to search for
+        if not rarities:
+            print(f"No valid rarities found for user {user_id}")
+            return None
+
+        # FIXED: More robust database query
         pipeline = [
             {
                 '$match': {
                     'rarity': {'$in': rarities},
-                    'img_url': {'$exists': True, '$ne': ''},  # Require non-empty img_url
-                    'id': {'$exists': True},  # Ensure id exists
-                    'name': {'$exists': True, '$ne': ''},  # Ensure name exists
-                    'anime': {'$exists': True, '$ne': ''},  # Ensure anime exists
-                    'rarity': {'$exists': True, '$ne': ''}  # Ensure rarity exists
+                    'img_url': {'$exists': True, '$ne': '', '$ne': None},  # Require valid img_url
+                    'id': {'$exists': True, '$ne': None},  # Ensure id exists
+                    'name': {'$exists': True, '$ne': '', '$ne': None},  # Ensure name exists
+                    'anime': {'$exists': True, '$ne': '', '$ne': None},  # Ensure anime exists
                 }
             },
             {'$sample': {'size': 1}}  # Randomly sample one character
         ]
+        
         cursor = collection.aggregate(pipeline)
         characters = await cursor.to_list(length=None)
+        
         if characters:
             character = characters[0]
             # Validate img_url
             if is_valid_url(character['img_url']):
+                print(f"Found character: {character['name']} with rarity: {character['rarity']}")
                 return character  # Return entire document
             else:
                 print(f"Invalid img_url for character ID {character.get('id')}: {character.get('img_url')}")
+        else:
+            print(f"No characters found for rarities: {rarities}")
+            
         return None
     except Exception as e:
         print(f"Error retrieving character: {e}")
@@ -128,11 +154,11 @@ async def award_rewards(user_id, safe_opened):
 
     character = None
     if safe_opened == 1:
-        user_data['balance'] += 100
+        user_data['balance'] += 600  # Fixed: Updated to match claim message
     elif safe_opened == 2:
-        user_data['balance'] += 200
+        user_data['balance'] += 1200  # Fixed: Updated to match claim message
     elif safe_opened == 3:
-        user_data['balance'] += 400
+        user_data['balance'] += 1800  # Fixed: Updated to match claim message
     elif safe_opened in [4, 5, 6]:
         character = await get_random_character(user_id, safe_opened)
         if character:
@@ -229,7 +255,7 @@ async def handle_mine_click(client: Client, callback_query):
         # Survive first mine hit
         await callback_query.message.edit_text(
             f"💥 You hit a mine but survived! One more hit will end the game. Safe cells opened: {safe_opened}. Keep going or claim your reward!",
-            reply_markup=generate_keyboard(grid, game_id, player_id, safe_opened, mine_hits)
+            reply_markup=generate_keyboard(grid, game_id, player_id, safe_opened, state['mine_hits'])
         )
         return
     
@@ -239,7 +265,7 @@ async def handle_mine_click(client: Client, callback_query):
     
     await callback_query.message.edit_text(
         f"Opened a safe cell! Safe cells opened: {state['safe_opened']}. Survive one mine hit, but two will end the game! Keep going or claim your reward!",
-        reply_markup=generate_keyboard(grid, game_id, player_id, state['safe_opened'], mine_hits)
+        reply_markup=generate_keyboard(grid, game_id, player_id, state['safe_opened'], state['mine_hits'])
     )
 
 @app.on_callback_query(filters.regex(r'claim_(\S+)_(\d+)_(\d+)'))

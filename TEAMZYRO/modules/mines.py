@@ -67,17 +67,34 @@ def generate_keyboard(grid, game_id, player_id, safe_opened, mine_hits):
     return InlineKeyboardMarkup(keyboard)
 
 # Get random character based on rarity
-async def get_random_character(rarities):
+async def get_random_character(user_id, safe_opened):
     try:
+        # Check user's filter_rarity
+        user_data = await user_collection.find_one({'id': user_id}, {'filter_rarity': 1})
+        filter_rarity = user_data.get('filter_rarity') if user_data else None
+
+        # Determine rarities based on filter_rarity or safe_opened
+        if filter_rarity:
+            rarities = [filter_rarity]
+        else:
+            if safe_opened == 4:
+                rarities = ['🟣 Rare', '💮 Special Edition']
+            elif safe_opened == 5:
+                rarities = ['🔮 Limited Edition', '💸 Expensive']
+            elif safe_opened == 6:
+                rarities = ['🎐 Celestial', '✨ Neon']
+            else:
+                return None  # No character for safe_opened < 4
+
         pipeline = [
             {
                 '$match': {
                     'rarity': {'$in': rarities},
                     'img_url': {'$exists': True, '$ne': ''},  # Require non-empty img_url
                     'id': {'$exists': True},  # Ensure id exists
-                    'name': {'$exists': True, '$ne': ''},  # Ensure name exists and is non-empty
-                    'anime': {'$exists': True, '$ne': ''},  # Ensure anime exists and is non-empty
-                    'rarity': {'$exists': True, '$ne': ''}  # Ensure rarity exists and is non-empty
+                    'name': {'$exists': True, '$ne': ''},  # Ensure name exists
+                    'anime': {'$exists': True, '$ne': ''},  # Ensure anime exists
+                    'rarity': {'$exists': True, '$ne': ''}  # Ensure rarity exists
                 }
             },
             {'$sample': {'size': 1}}  # Randomly sample one character
@@ -88,7 +105,7 @@ async def get_random_character(rarities):
             character = characters[0]
             # Validate img_url
             if is_valid_url(character['img_url']):
-                return character  # Return entire document as is
+                return character  # Return entire document
             else:
                 print(f"Invalid img_url for character ID {character.get('id')}: {character.get('img_url')}")
         return None
@@ -116,19 +133,12 @@ async def award_rewards(user_id, safe_opened):
         user_data['balance'] += 200
     elif safe_opened == 3:
         user_data['balance'] += 400
-    elif safe_opened == 4:
-        character = await get_random_character(['🟣 Rare', '💮 Special Edition'])
+    elif safe_opened in [4, 5, 6]:
+        character = await get_random_character(user_id, safe_opened)
         if character:
             user_data['characters'].append(character)
-    elif safe_opened == 5:
-        character = await get_random_character(['🔮 Limited Edition', '🎐 Celestial'])
-        if character:
-            user_data['characters'].append(character)
-    elif safe_opened == 6:
-        user_data['balance'] += 2000
-        character = await get_random_character(['💸 Expensive', '✨ Neon'])
-        if character:
-            user_data['characters'].append(character)
+        if safe_opened == 6:
+            user_data['balance'] += 2000
 
     try:
         await user_collection.update_one(
@@ -255,7 +265,7 @@ async def handle_claim(client: Client, callback_query):
     if safe_opened == 0:
         await callback_query.message.edit_text("No safe cells opened, no rewards to claim.")
     elif safe_opened in [1, 2, 3]:
-        coins = {1: 100, 2: 200, 3: 400}[safe_opened]
+        coins = {1: 600, 2: 1200, 3: 1800}[safe_opened]
         await callback_query.message.edit_text(f"You claimed {coins} coins for opening {safe_opened} safe cell(s)!")
     elif safe_opened in [4, 5]:
         if character:

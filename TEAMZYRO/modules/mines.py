@@ -4,6 +4,7 @@ from TEAMZYRO import app, user_collection, collection
 import random
 import uuid
 from asyncio import sleep
+import re
 
 # Rarity map
 rarity_map = {
@@ -32,6 +33,12 @@ GRID_SIZE = 3  # 3x3 grid
 NUM_MINES = 3  # 3 mines
 TOKEN_COST = 1  # 1 token to start
 MAX_MINE_HITS = 2  # Game over after 2 mine hits
+
+# Validate URL (basic HTTP/HTTPS check)
+def is_valid_url(url):
+    if not url or not isinstance(url, str):
+        return False
+    return re.match(r'^https?://[^\s/$.?#].[^\s]*$', url) is not None
 
 # Initialize game state
 def create_game():
@@ -62,23 +69,30 @@ def generate_keyboard(grid, game_id, player_id, safe_opened, mine_hits):
 async def get_random_character(rarities):
     try:
         pipeline = [
-            {'$match': {'rarity': {'$in': rarities}}},
+            {
+                '$match': {
+                    'rarity': {'$in': rarities},
+                    'img_url': {'$exists': True, '$ne': ''},  # Ensure img_url exists and is non-empty
+                    # Optionally require vid_url if needed by display_harem
+                    # 'vid_url': {'$exists': True, '$ne': ''}
+                }
+            },
             {'$sample': {'size': 1}}  # Randomly sample one character
         ]
         cursor = collection.aggregate(pipeline)
         characters = await cursor.to_list(length=None)
         if characters:
             character = characters[0]
-            # Ensure all required fields are present
-            required_fields = ['id', 'name', 'anime', 'rarity']
-            if all(field in character for field in required_fields):
+            # Ensure all required fields are present and img_url is valid
+            required_fields = ['id', 'name', 'anime', 'rarity', 'img_url']
+            if all(field in character for field in required_fields) and is_valid_url(character['img_url']):
                 return {
-                    'id': character['id'],
+                    'id': character['id'],  # Preserve index (id)
                     'name': character['name'],
                     'anime': character['anime'],
                     'rarity': character['rarity'],
-                    'img_url': character.get('img_url', ''),
-                    'vid_url': character.get('vid_url', '')
+                    'img_url': character['img_url'],
+                    'vid_url': character.get('vid_url', '')  # Allow empty vid_url if not required
                 }
         return None
     except Exception as e:
@@ -244,7 +258,7 @@ async def handle_claim(client: Client, callback_query):
     elif safe_opened in [4, 5]:
         if character:
             await callback_query.message.edit_text(
-                f"You claimed a character: {character['name']} ({character['anime']}, {character['rarity']}) for opening {safe_opened} safe cells!"
+                f"You claimed a character: {character['name']} ({character['anime']}, {character['rarity']}, ID: {character['id']}) for opening {safe_opened} safe cells!"
             )
         else:
             await callback_query.message.edit_text(
@@ -253,7 +267,7 @@ async def handle_claim(client: Client, callback_query):
     elif safe_opened == 6:
         if character:
             await callback_query.message.edit_text(
-                f"You claimed 2000 coins and a character: {character['name']} ({character['anime']}, {character['rarity']}) for opening {safe_opened} safe cells!"
+                f"You claimed 2000 coins and a character: {character['name']} ({character['anime']}, {character['rarity']}, ID: {character['id']}) for opening {safe_opened} safe cells!"
             )
         else:
             await callback_query.message.edit_text(

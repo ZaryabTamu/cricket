@@ -4,10 +4,8 @@ import html
 from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from pymongo import MongoClient
-from TEAMZYRO import app, user_collection, collection, rarity_map2
+from TEAMZYRO import app, user_collection, collection, db
 
-# MongoDB collection for game state
-db = MongoClient().get_database("TEAMZYRO")  # Assumes db is configured in TEAMZYRO
 mines_games = db["mines_games"]
 
 # Decorator for VIP access (from balance.py)

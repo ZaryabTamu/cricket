@@ -13,19 +13,26 @@ format:- /upload reply character-name anime-name rarity-number
 use rarity number accordingly rarity Map
 
 rarity_map = {
-    1: "⚪️ Low",
-    2: "🟠 Medium",
-    3: "🔴 High",
-    4: "🎩 Special Edition",
-    5: "🪽 Elite Edition",
-    6: "🪐 Exclusive",
-    7: "💞 Valentine",
-    8: "🎃 Halloween",
-    9: "❄️ Winter",
-    10: "🏖 Summer",
-    11: "🎗 Royal",
-    12: "💸 Luxury Edition"
+    1: "⚪️ Common",
+    2: "🟣 Rare",
+    3: "🟡 Legendary",
+    4: "🟢 Medium",
+    5: "💮 Special Edition",
+    6: "🔮 Limited Edition",
+    7: "🎐 Celestial",
+    8: "💖 Valentine",
+    9: "🎃 Halloween",
+    10: "❄️ Winter",
+    11: "💸 Expensive",
+    12: "💌 AMV",
+    13: "🏖 Summer",
+    14: "🧬 X-Verse",
+    15: "✨ Neon",
+    16: "⚜ Royal",
+    17: "🎨 Holi Addition",
+    18: "🥵 Erotic"
 }
+
 """
 
 async def find():

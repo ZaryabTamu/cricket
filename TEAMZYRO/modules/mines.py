@@ -6,7 +6,7 @@ import uuid
 from asyncio import sleep
 import re
 
-# Rarity map (aligned with harem (2).py's rarity_map2)
+# Rarity map (aligned with harem (3).py's rarity_map2)
 rarity_map = {
     1: "⚪️ Common",
     2: "🟣 Rare",
@@ -72,8 +72,8 @@ async def get_random_character(rarities):
             {
                 '$match': {
                     'rarity': {'$in': rarities},
-                    'img_url': {'$exists': True, '$ne': ''}  # Require non-empty img_url
-                    # vid_url is optional, as display_harem falls back to img_url
+                    'img_url': {'$exists': True, '$ne': ''},  # Require non-empty img_url
+                    '$expr': {'$cond': {'if': {'$eq': ['$rarity', '💌 AMV']}, 'then': {'$ne': ['$vid_url', '']}, 'else': True}}  # Require vid_url for AMV
                 }
             },
             {'$sample': {'size': 1}}  # Randomly sample one character
@@ -91,7 +91,7 @@ async def get_random_character(rarities):
                     'anime': character['anime'],
                     'rarity': character['rarity'],
                     'img_url': character['img_url'],
-                    'vid_url': character.get('vid_url', '')  # Allow empty vid_url
+                    'vid_url': character.get('vid_url', '') if is_valid_url(character.get('vid_url', '')) else ''  # Validate vid_url
                 }
         return None
     except Exception as e:
@@ -236,6 +236,7 @@ async def handle_mine_click(client: Client, callback_query):
 
 @app.on_callback_query(filters.regex(r'claim_(\S+)_(\d+)_(\d+)'))
 async def handle_claim(client: Client, callback_query):
+    from harem import display_harem  # Import here to avoid circular import
     user_id = callback_query.from_user.id
     data = callback_query.data.split('_')
     game_id, player_id, safe_opened = data[1], data[2], int(data[3])
@@ -259,41 +260,33 @@ async def handle_claim(client: Client, callback_query):
     elif safe_opened in [1, 2, 3]:
         coins = {1: 100, 2: 200, 3: 400}[safe_opened]
         await callback_query.message.edit_text(f"You claimed {coins} coins for opening {safe_opened} safe cell(s)!")
-    elif safe_opened in [4, 5]:
-        if character:
-            await callback_query.message.reply_photo(
-                photo=character['img_url'],
-                caption=(
-                    f"🎊 Congratulations! You claimed a character for opening {safe_opened} safe cells!\n"
-                    f"🌸 Name: {character['name']}\n"
-                    f"⛩️ Anime: {character['anime']}\n"
-                    f"🌈 Rarity: {character['rarity']}\n"
-                    f"🆔 ID: {character['id']}"
-                ),
-                parse_mode="HTML"
-            )
+    elif safe_opened in [4, 5, 6]:
+        if character and is_valid_url(character['img_url']):
             await callback_query.message.delete()  # Delete game message
+            caption = (
+                f"🎊 Congratulations! You claimed {'2000 coins and a character' if safe_opened == 6 else 'a character'} for opening {safe_opened} safe cells!\n"
+                f"🌸 Name: {character['name']}\n"
+                f"⛩️ Anime: {character['anime']}\n"
+                f"🌈 Rarity: {character['rarity']}\n"
+                f"🆔 ID: {character['id']}"
+            )
+            if character.get('vid_url') and is_valid_url(character['vid_url']):
+                await callback_query.message.reply_video(
+                    video=character['vid_url'],
+                    caption=caption,
+                    parse_mode=enums.ParseMode.HTML
+                )
+            else:
+                await callback_query.message.reply_photo(
+                    photo=character['img_url'],
+                    caption=caption,
+                    parse_mode=enums.ParseMode.HTML
+                )
+            # Call display_harem to show updated harem
+            await display_harem(client, callback_query.message, user_id, 0, None, is_initial=True)
         else:
             await callback_query.message.edit_text(
-                f"No characters available for {safe_opened} safe cells. Try again later!"
-            )
-    elif safe_opened == 6:
-        if character:
-            await callback_query.message.reply_photo(
-                photo=character['img_url'],
-                caption=(
-                    f"🎊 Congratulations! You claimed 2000 coins and a character for opening {safe_opened} safe cells!\n"
-                    f"🌸 Name: {character['name']}\n"
-                    f"⛩️ Anime: {character['anime']}\n"
-                    f"🌈 Rarity: {character['rarity']}\n"
-                    f"🆔 ID: {character['id']}"
-                ),
-                parse_mode="HTML"
-            )
-            await callback_query.message.delete()  # Delete game message
-        else:
-            await callback_query.message.edit_text(
-                f"You claimed 2000 coins for opening {safe_opened} safe cells! No characters available."
+                f"{'You claimed 2000 coins' if safe_opened == 6 else 'No characters available'} for opening {safe_opened} safe cells. Try again later!"
             )
     
     # End game, remove buttons

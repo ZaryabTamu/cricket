@@ -35,56 +35,47 @@ NUM_MINES = 3  # 3 mines
 TOKEN_COST = 1  # 1 token to start
 MAX_MINE_HITS = 2  # Game over after 2 mine hits
 
-# Game State Key:
-#  0: Unopened cell
-#  1: Opened safe cell
-# -1: Hidden mine
-# -2: Revealed mine (after being clicked)
-
 # Validate URL (HTTP/HTTPS check)
 def is_valid_url(url):
     if not url or not isinstance(url, str):
         return False
     return re.match(r'^https?://[^\s/$.?#].[^\s]*$', url) is not None
 
-# Initialize game state
+# MODIFIED: Initialize game state
 def create_game():
+    """
+    Creates the game grid and randomly places mines.
+    Grid states: 0 = unopened, 1 = opened safe, 2 = opened mine.
+    """
     grid = [[0 for _ in range(GRID_SIZE)] for _ in range(GRID_SIZE)]
     mines = random.sample([(i, j) for i in range(GRID_SIZE) for j in range(GRID_SIZE)], NUM_MINES)
-    for mine_x, mine_y in mines:
-        grid[mine_x][mine_y] = -1
     return grid, mines
 
-# Generate inline keyboard for the game - MODIFIED
-def generate_keyboard(grid, game_id, player_id, safe_opened, mine_hits, game_over=False):
+# MODIFIED: Generate inline keyboard for the game
+def generate_keyboard(grid, game_id, player_id, safe_opened, mine_hits):
+    """
+    Generates the game board with buttons for each cell.
+    - 🔳 for unopened cells.
+    - ⬜ for opened safe cells.
+    - 💥 for opened mine cells.
+    """
     keyboard = []
     # Grid buttons
     for i in range(GRID_SIZE):
         row = []
         for j in range(GRID_SIZE):
-            cell_state = grid[i][j]
-            if game_over:
-                # On game over, reveal all mines and disable all buttons
-                if cell_state == -1 or cell_state == -2:  # If it was a hidden or revealed mine
-                    row.append(InlineKeyboardButton("💣", callback_data="game_over"))
-                elif cell_state == 1:  # If it was an opened safe cell
-                    row.append(InlineKeyboardButton("⬜", callback_data="game_over"))
-                else:  # Unopened safe cells
-                    row.append(InlineKeyboardButton("🔳", callback_data="game_over"))
-            else:
-                # Active game logic
-                if cell_state == 1:  # Opened safe cell
-                    row.append(InlineKeyboardButton("⬜", callback_data=f"mine_{game_id}_{player_id}_{i}_{j}_opened"))
-                elif cell_state == -2:  # Revealed mine
-                    row.append(InlineKeyboardButton("💣", callback_data=f"mine_{game_id}_{player_id}_{i}_{j}_revealed"))
-                else:  # Unopened cell (mines are hidden as 🔳)
-                    row.append(InlineKeyboardButton("🔳", callback_data=f"mine_{game_id}_{player_id}_{i}_{j}"))
+            if grid[i][j] == 1:  # Opened safe cell
+                row.append(InlineKeyboardButton("⬜", callback_data=f"mine_{game_id}_{player_id}_{i}_{j}_opened"))
+            elif grid[i][j] == 2:  # Opened mine cell
+                row.append(InlineKeyboardButton("💥", callback_data=f"mine_{game_id}_{player_id}_{i}_{j}_opened"))
+            else:  # Unopened cell
+                row.append(InlineKeyboardButton("🔳", callback_data=f"mine_{game_id}_{player_id}_{i}_{j}"))
         keyboard.append(row)
-
+    
     # Claim button (appears after at least one safe box is opened and game is not over)
-    if not game_over and safe_opened > 0:
+    game_over = mine_hits >= MAX_MINE_HITS
+    if safe_opened > 0 and not game_over:
         keyboard.append([InlineKeyboardButton("Claim Reward", callback_data=f"claim_{game_id}_{player_id}_{safe_opened}")])
-
     return InlineKeyboardMarkup(keyboard)
 
 # Get random character based on rarity - FIXED VERSION
@@ -113,16 +104,15 @@ async def get_random_character(user_id, safe_opened):
             return None
 
         pipeline = [
-            {'$match': {'rarity': {'$in': rarities}, 'img_url': {'$exists': True, '$ne': ''}, 'id': {'$exists': True}, 'name': {'$exists': True}, 'anime': {'$exists': True}}},
+            {'$match': {'rarity': {'$in': rarities}, 'img_url': {'$exists': True, '$ne': ''}, 'id': {'$exists': True}, 'name': {'$exists': True, '$ne': ''}, 'anime': {'$exists': True, '$ne': ''}}},
             {'$sample': {'size': 1}}
         ]
+        
         cursor = collection.aggregate(pipeline)
         characters = await cursor.to_list(length=None)
-
-        if characters:
-            character = characters[0]
-            if is_valid_url(character.get('img_url')):
-                return character
+        
+        if characters and is_valid_url(characters[0].get('img_url')):
+            return characters[0]
         return None
     except Exception as e:
         print(f"Error retrieving character: {e}")
@@ -144,15 +134,20 @@ async def award_rewards(user_id, safe_opened):
     elif safe_opened in [4, 5, 6]:
         character = await get_random_character(user_id, safe_opened)
         if character:
-            user_data.get('characters', []).append(character)
+            user_data.setdefault('characters', []).append(character)
         if safe_opened == 6:
             user_data['balance'] += 2000
 
-    await user_collection.update_one(
-        {'id': user_id},
-        {'$set': user_data},
-        upsert=True
-    )
+    try:
+        await user_collection.update_one(
+            {'id': user_id},
+            {'$set': {'balance': user_data.get('balance', 0), 'characters': user_data.get('characters', [])}},
+            upsert=True
+        )
+    except Exception as e:
+        print(f"Error updating user_collection: {e}")
+        return user_data, None
+
     return user_data, character
 
 # In-memory game state
@@ -166,7 +161,12 @@ async def start_mines(client: Client, message: Message):
         await message.reply_text("You need 1 token to play Minesweeper! Use /redeemtoken to get tokens.")
         return
 
-    await user_collection.update_one({'id': user_id}, {'$inc': {'tokens': -TOKEN_COST}})
+    try:
+        await user_collection.update_one({'id': user_id}, {'$inc': {'tokens': -TOKEN_COST}})
+    except Exception as e:
+        print(f"Error deducting token: {e}")
+        await message.reply_text("❌ Error starting game. Try again later.")
+        return
     
     game_id = str(uuid.uuid4())
     player_id = str(user_id)
@@ -183,8 +183,8 @@ async def start_mines(client: Client, message: Message):
     )
     game_state[user_id]['message_id'] = msg.id
 
-# MODIFIED REGEX and HANDLER
-@app.on_callback_query(filters.regex(r'mine_(\S+)_(\d+)_(\d+)_(\d+)(?:_opened|_revealed)?'))
+# MODIFIED: Handle all clicks on the mine grid
+@app.on_callback_query(filters.regex(r'mine_(\S+)_(\d+)_(\d+)_(\d+)(?:_opened)?'))
 async def handle_mine_click(client: Client, callback_query):
     user_id = callback_query.from_user.id
     data = callback_query.data.split('_')
@@ -201,48 +201,43 @@ async def handle_mine_click(client: Client, callback_query):
     state = game_state[user_id]
     grid, mines, safe_opened, mine_hits = state['grid'], state['mines'], state['safe_opened'], state['mine_hits']
     
-    # Check if cell is already opened (safe or mine)
-    if grid[x][y] == 1:
-        await callback_query.answer("This cell is already opened!", show_alert=True)
+    # Check if cell is already opened (either a safe spot or a revealed mine)
+    if grid[x][y] in [1, 2]:
+        await callback_query.answer("This cell has already been revealed!", show_alert=True)
         return
-    if grid[x][y] == -2:  # If it's a revealed mine
-        await callback_query.answer("You already hit this mine!", show_alert=True)
-        return
-
-    # Check if it's a mine
+    
+    # Check if the clicked cell is a mine
     if (x, y) in mines:
         state['mine_hits'] += 1
-        grid[x][y] = -2  # Mark the mine as revealed
-
+        grid[x][y] = 2  # Mark the grid to show a bomb '💥'
+        
         if state['mine_hits'] >= MAX_MINE_HITS:
             # Game Over: Reveal all mines
             for mine_x, mine_y in mines:
-                if grid[mine_x][mine_y] == -1:
-                    grid[mine_x][mine_y] = -2
+                grid[mine_x][mine_y] = 2
             
-            final_keyboard = generate_keyboard(grid, game_id, player_id, safe_opened, state['mine_hits'], game_over=True)
             await callback_query.message.edit_text(
-                "💥 **Game Over!** You hit two mines. No rewards earned.\nThe final board is shown above. Try `/mines` to play again.",
-                reply_markup=final_keyboard
+                "💥 Game Over! You hit two mines. No rewards earned. Try /mines to play again.",
+                reply_markup=generate_keyboard(grid, game_id, player_id, safe_opened, state['mine_hits'])
             )
             del game_state[user_id]
             return
-
-        # Survived first mine hit
+        else:
+            # Survived the first mine hit
+            await callback_query.message.edit_text(
+                f"💥 You hit a mine but survived! One more hit will end the game. Safe cells opened: {safe_opened}. Keep going or claim your reward!",
+                reply_markup=generate_keyboard(grid, game_id, player_id, safe_opened, state['mine_hits'])
+            )
+            return
+    else:
+        # It's a safe cell
+        grid[x][y] = 1
+        state['safe_opened'] += 1
+        
         await callback_query.message.edit_text(
-            f"💥 You hit a mine but survived! The mine is marked with 💣. One more hit will end the game. Safe cells opened: {safe_opened}. Keep going or claim your reward!",
-            reply_markup=generate_keyboard(grid, game_id, player_id, safe_opened, state['mine_hits'])
+            f"Opened a safe cell! Safe cells opened: {state['safe_opened']}. Keep going or claim your reward!",
+            reply_markup=generate_keyboard(grid, game_id, player_id, state['safe_opened'], state['mine_hits'])
         )
-        return
-    
-    # Safe cell
-    grid[x][y] = 1
-    state['safe_opened'] += 1
-    
-    await callback_query.message.edit_text(
-        f"Opened a safe cell! Safe cells opened: {state['safe_opened']}. Survive one mine hit, but two will end the game! Keep going or claim your reward!",
-        reply_markup=generate_keyboard(grid, game_id, player_id, state['safe_opened'], state['mine_hits'])
-    )
 
 @app.on_callback_query(filters.regex(r'claim_(\S+)_(\d+)_(\d+)'))
 async def handle_claim(client: Client, callback_query):
@@ -260,7 +255,7 @@ async def handle_claim(client: Client, callback_query):
     
     user_data, character = await award_rewards(user_id, safe_opened)
     
-    if safe_opened == 0:
+    if safe_opened <= 0:
         await callback_query.message.edit_text("No safe cells opened, no rewards to claim.")
     elif safe_opened in [1, 2, 3]:
         coins = {1: 600, 2: 1200, 3: 1800}[safe_opened]
@@ -275,12 +270,8 @@ async def handle_claim(client: Client, callback_query):
                 f"🆔 <b>ID:</b> {character['id']}"
             )
             if safe_opened == 6:
-                caption_text = f"🎊 <b>Congratulations!</b> You claimed 2000 coins and a character for opening {safe_opened} safe cells!\n" + \
-                               f"🌸 <b>Name:</b> {character['name']}\n" + \
-                               f"⛩️ <b>Anime:</b> {character['anime']}\n" + \
-                               f"🌈 <b>Rarity:</b> {character['rarity']}\n" + \
-                               f"🆔 <b>ID:</b> {character['id']}"
-            
+                caption_text = f"🎊 <b>Congratulations!</b> You claimed 2000 coins and a character for opening {safe_opened} safe cells!\n" + f"🌸 <b>Name:</b> {character['name']}\n"f"⛩️ <b>Anime:</b> {character['anime']}\n"f"🌈 <b>Rarity:</b> {character['rarity']}\n"f"🆔 <b>ID:</b> {character['id']}"
+
             await callback_query.message.reply_photo(
                 photo=character['img_url'],
                 caption=caption_text,
@@ -288,10 +279,10 @@ async def handle_claim(client: Client, callback_query):
             )
             await callback_query.message.delete()
         else:
-            fallback_text = f"No characters available for {safe_opened} safe cells. Try again later!"
+            reward_text = f"No characters available for {safe_opened} safe cells. Try again later!"
             if safe_opened == 6:
-                fallback_text = f"You claimed 2000 coins for opening {safe_opened} safe cells! No characters were available."
-            await callback_query.message.edit_text(fallback_text)
-
+                reward_text = f"You claimed 2000 coins for opening {safe_opened} safe cells! No characters available."
+            await callback_query.message.edit_text(reward_text)
+    
     if user_id in game_state:
         del game_state[user_id]

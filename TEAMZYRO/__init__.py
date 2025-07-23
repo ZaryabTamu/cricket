@@ -40,19 +40,19 @@ mongo_url = "mongodb+srv://harshmanjhi1801:webapp@cluster0.xxwc4.mongodb.net/?re
 MUSJ_JOIN = os.getenv("MUSJ_JOIN", "username")
 
 # Modified to support both image and video URLs
-START_MEDIA = os.getenv("START_MEDIA", "https://files.catbox.moe/tz60w2.jpg,https://files.catbox.moe/w63mql.jpg").split(',')
+START_MEDIA = os.getenv("START_MEDIA", "https://files.catbox.moe/w63mql.jpg,https://files.catbox.moe/tz60w2.jpg").split(',')
 
 PHOTO_URL = [
-    os.getenv("PHOTO_URL_1", "https://files.catbox.moe/7ccoub.jpg"),
-    os.getenv("PHOTO_URL_2", "https://files.catbox.moe/7ccoub.jpg")
+    os.getenv("PHOTO_URL_1", "https://files.catbox.moe/tz60w2.jpg"),
+    os.getenv("PHOTO_URL_2", "https://files.catbox.moe/w63mql.jpg")
 ]
 
-STATS_IMG = ["https://files.catbox.moe/gknnju.jpg"] 
+STATS_IMG = ["https://files.catbox.moe/tom995.jpg"] 
 
-SUPPORT_CHAT = os.getenv("SUPPORT_CHAT", "https://t.me/Zyroupdates")
-UPDATE_CHAT = os.getenv("UPDATE_CHAT", "https://t.me/ZyroBotCodes")
-SUDO = list(map(int, os.getenv("SUDO", "7577185215,5749187175").split(',')))
-OWNER_ID = int(os.getenv("OWNER_ID", "7073835511"))
+SUPPORT_CHAT = os.getenv("SUPPORT_CHAT", "https://t.me/thezyroempire")
+UPDATE_CHAT = os.getenv("UPDATE_CHAT", "https://t.me/Zyrosupport")
+SUDO = list(map(int, os.getenv("SUDO", "1139478215,6037958673").split(',')))
+OWNER_ID = int(os.getenv("OWNER_ID", "6037958673"))
 
 # --------------------- TELEGRAM BOT CONFIGURATION -----------------------
 command_filter = f.create(lambda _, __, message: message.text and message.text.startswith("/"))

@@ -3,7 +3,7 @@ from TEAMZYRO import TOKEN
 
 CHAT_ID = -100
 BOT_USERNAME = "@Gaming\\_X\\_World\\_Bot"  # Escaped underscores for bot username
-OWNER_NAME = "@sukuna\\_dev"  # Escaped underscores for owner's username
+OWNER_NAME = "@iambilli\\_dev"  # Escaped underscores for owner's username
 IMAGE_URL = "https://files.catbox.moe/ehv507.jpeg"
 
 def send_start_message():

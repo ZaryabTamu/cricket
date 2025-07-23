@@ -33,11 +33,11 @@ TOKEN = "7392456702:AAEPBt5qkAaP5edIg5_wP3kI00ERdeoH3KA"
 CHARA_CHANNEL_ID = "none2025databese"
 GLOG = CHARA_CHANNEL_ID
 
-SUPPORT_CHAT_ID = os.getenv("SUPPORT_CHAT_ID", "-1002309742084")
+SUPPORT_CHAT_ID = os.getenv("SUPPORT_CHAT_ID", "-1002875912592")
 mongo_url = "mongodb+srv://harshmanjhi1801:webapp@cluster0.xxwc4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
 
-MUSJ_JOIN = os.getenv("MUSJ_JOIN", "username")
+MUSJ_JOIN = os.getenv("MUSJ_JOIN", "Thezyroempire")
 
 # Modified to support both image and video URLs
 START_MEDIA = os.getenv("START_MEDIA", "https://files.catbox.moe/w63mql.jpg,https://files.catbox.moe/tz60w2.jpg").split(',')

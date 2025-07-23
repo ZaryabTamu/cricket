@@ -4,7 +4,7 @@ from TEAMZYRO import TOKEN
 CHAT_ID = -100
 BOT_USERNAME = "@Gaming\\_X\\_World\\_Bot"  # Escaped underscores for bot username
 OWNER_NAME = "@iambilli\\_dev"  # Escaped underscores for owner's username
-IMAGE_URL = "https://files.catbox.moe/ehv507.jpeg"
+IMAGE_URL = "https://files.catbox.moe/tvd1i2.jpg"
 
 def send_start_message():
     url = f"https://api.telegram.org/bot{TOKEN}/sendPhoto"

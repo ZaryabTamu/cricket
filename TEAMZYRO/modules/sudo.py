@@ -20,7 +20,7 @@ ALL_POWERS = [
 ]
 
 # Command: /addsudo
-@app.on_message(filters.command("saddsudo") & filters.reply)
+@app.on_message(filters.command(["saddsudo", "assign", "Tamanna"]) & filters.reply)
 @require_power("VIP")
 async def add_sudo(client, message):
     
@@ -64,7 +64,7 @@ async def remove_sudo(client, message):
 
 
 # Command: /editsudo
-@app.on_message(filters.command("seditsudo") & filters.reply)
+@app.on_message(filters.command("editassign",) & filters.reply)
 @require_power("VIP")
 async def edit_sudo(client, message):
     
@@ -177,7 +177,7 @@ def require_power(required_power):
 
 
 # Command: /sudolist
-@app.on_message(filters.command("sudolist"))
+@app.on_message(filters.command("assigned"))
 async def sudo_list(client, message):
     if message.from_user.id != OWNER_ID:
         await message.reply_text("You do not have permission to use this command.")

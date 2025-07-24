@@ -1,17 +1,14 @@
 from TEAMZYRO import *
 from pyrogram import Client, filters
-from pyrogram.types import Message
+from pyrogram.types import Message, User
 import html
 
-
-# You already have this globally in your project
-# from Yumeko import user_collection  ← assumed to be already imported
 
 DEFAULT_BALANCE = 500
 DEFAULT_TOKENS = 20
 
-# Fetch or create user balance and tokens
-async def get_balance(user_id, name):
+# Fetch or create user balance
+async def get_balance(user_id: int, name: str):
     user_data = await user_collection.find_one({'id': user_id})
     if not user_data:
         await user_collection.insert_one({
@@ -23,14 +20,31 @@ async def get_balance(user_id, name):
         return DEFAULT_BALANCE, DEFAULT_TOKENS
     return user_data.get('balance', 0), user_data.get('tokens', 0)
 
-# Command handler for /balance, /bal, /acc
-@Client.on_message(filters.command(["balance", "bal", "acc"]))
-async def balance(client: Client, message: Message):
-    user = message.from_user
-    user_id = user.id
-    name = html.escape(user.first_name or "User")
+# Resolve user by reply, username, or ID
+async def get_target_user(client: Client, message: Message) -> User:
+    if message.reply_to_message:
+        return message.reply_to_message.from_user
+    args = message.text.split()
+    if len(args) > 1:
+        identifier = args[1]
+        try:
+            if identifier.startswith("@"):
+                return await client.get_users(identifier)
+            else:
+                return await client.get_users(int(identifier))
+        except Exception:
+            return None
+    return message.from_user
 
-    balance, tokens = await get_balance(user_id, name)
+@Client.on_message(filters.command(["acc", "bal", "balance", "account"]))
+async def balance_handler(client: Client, message: Message):
+    user = await get_target_user(client, message)
+    if not user:
+        await message.reply_text("❌ Couldn't find that user.")
+        return
+
+    name = html.escape(user.first_name or "User")
+    balance, tokens = await get_balance(user.id, name)
 
     response = (
         f"<b>{name}'s Profile</b>\n"

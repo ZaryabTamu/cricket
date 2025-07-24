@@ -52,7 +52,7 @@ async def mclaim(_, message: t.Message):
         if str(message.chat.id) != chat:
             join_button = InlineKeyboardMarkup([[InlineKeyboardButton("Join Here", url="https://t.me/Zyroupdates")]])
             return await message.reply_text(
-                "🔔 ᴊᴏɪɴ ᴛʜᴇ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴄʟᴀɪᴍ ʏᴏᴜʀ �ᴀɪʟʏ ᴄʜᴀʀᴀᴄᴛᴇʀ 🔔",
+                "🍓 ᴊᴏɪɴ ᴛʜᴇ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴄʟᴀɪᴍ ʏᴏᴜʀ Dᴀɪʟʏ ᴄʜᴀʀᴀᴄᴛᴇʀ ",
                 reply_markup=join_button
             )
 

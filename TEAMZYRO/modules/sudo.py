@@ -40,7 +40,7 @@ async def add_sudo(client, message):
     )
     await message.reply_text(f"User `{replied_user_id}` has been added as a sudo with 'add_character' power.")
 
-@app.on_message(filters.command("sremovesudo"))
+@app.on_message(filters.command(["sremovesudo", "unassign", "Zaryab"]))
 @require_power("VIP")
 async def remove_sudo(client, message):
     # Get user ID from reply or command argument

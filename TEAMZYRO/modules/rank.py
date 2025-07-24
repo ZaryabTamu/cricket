@@ -6,7 +6,7 @@ import html
 from TEAMZYRO import app as Client
 from TEAMZYRO import user_collection, top_global_groups_collection
 
-PHOTO_URL = ["https://files.catbox.moe/20xca5.jpg"]  
+PHOTO_URL = ["https://files.catbox.moe/spbt78.jpg"]  
 
 @Client.on_message(filters.command("rank"))
 async def rank(client, message):
@@ -15,7 +15,7 @@ async def rank(client, message):
     leaderboard_data.sort(key=lambda x: len(x.get('characters', [])), reverse=True)
     leaderboard_data = leaderboard_data[:10]
 
-    leaderboard_message = "<b>TOP 10 USERS WITH MOST CHARACTERS</b>\n\n"
+    leaderboard_message = "<b>👤TOP 10 USERS WITH MOST CHARACTERS</b>\n\n"
     for i, user in enumerate(leaderboard_data, start=1):
         user_id = user.get('id', 'Unknown')
         first_name = html.escape(user.get('first_name', 'Unknown'))[:15] + '...'

@@ -103,7 +103,7 @@ async def pay(client: Client, message: Message):
         await message.reply_text(f"✅ You gifted {amount} coins to {recipient_name} (as owner).")
         await client.send_message(
             recipient_id,
-            f"🎁 {sender_name} (owner) sent you {amount} coins.\n💰 Your New Balance: {amount:,} coins"
+            f"🎁 {sender_name} sent you {amount} coins.\n💰 Your New Balance: {amount:,} coins"
         )
         return
 
@@ -153,6 +153,43 @@ async def pay(client: Client, message: Message):
         parse_mode="html"
     )
     await message.reply_text("📨 Payment request sent to the owner for approval.")
+@app.on_callback_query(filters.regex(r"^(approve|reject)_(\d+)_(\d+)_(\d+)$"))
+async def handle_approval(client: Client, query: CallbackQuery):
+    action, sender_id, recipient_id, amount = query.data.split("_")
+    sender_id = int(sender_id)
+    recipient_id = int(recipient_id)
+    amount = int(amount)
+
+    sender_user = await client.get_users(sender_id)
+    recipient_user = await client.get_users(recipient_id)
+
+    sender_name = html.escape(sender_user.first_name or str(sender_id))
+    recipient_name = html.escape(recipient_user.first_name or str(recipient_id))
+
+    if query.from_user.id != OWNER_ID:
+        return await query.answer("Only owner can approve/decline.", show_alert=True)
+
+    if action == "approve":
+        sender_balance, _ = await get_balance(sender_id, sender_name)
+        if sender_balance < amount:
+            await client.send_message(sender_id, "🚫 Your balance dropped. Payment can't be processed.")
+            return await query.message.edit_text("❌ Payment failed: sender has insufficient balance.")
+
+        # Transfer
+        await user_collection.update_one({'id': sender_id}, {'$inc': {'balance': -amount}})
+        await user_collection.update_one({'id': recipient_id}, {'$inc': {'balance': amount}}, upsert=True)
+
+        new_sender_balance, _ = await get_balance(sender_id, sender_name)
+        new_recipient_balance, _ = await get_balance(recipient_id, recipient_name)
+
+        await client.send_message(sender_id, f"✅ Your payment of {amount:,} coins to {recipient_name} was approved.\n💰 New Balance: {new_sender_balance:,} coins")
+        await client.send_message(recipient_id, f"🎉 You received {amount:,} coins from {sender_name} (approved by owner).\n💰 New Balance: {new_recipient_balance:,} coins")
+
+        await query.message.edit_text("✅ Payment Approved and completed.")
+    else:
+        await client.send_message(sender_id, "❌ Your payment was rejected by the owner. Reason was not valid or acceptable.\nPlease try again later.")
+        await query.message.edit_text("❌ Payment request has been declined.")
+
 
 @app.on_message(filters.command("redeemtoken"))
 async def redeem_token(client: Client, message: Message):

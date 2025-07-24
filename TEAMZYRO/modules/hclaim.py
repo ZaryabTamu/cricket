@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from TEAMZYRO import ZYRO as bot
 from TEAMZYRO import user_collection, collection, user_nguess_progress, user_guess_progress
 
-chat = "-1002613457547"
+chat = "-1002875912592"
 
 claim_lock = {}
 

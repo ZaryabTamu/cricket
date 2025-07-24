@@ -6,7 +6,7 @@ from TEAMZYRO.unit.zyro_rarity import rarity_map  # Importing rarity_map
 
 SUDO_USERS = SUDO
 
-@app.on_message(filters.command("gdelete"))
+@app.on_message(filters.command("deletechar"))
 @require_power("delete_character")
 async def delete_handler(client, message):
     try:

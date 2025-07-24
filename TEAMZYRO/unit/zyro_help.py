@@ -5,7 +5,7 @@ HELP_DATA = {
         "HELP_NAME": "Bᴀʟ Aɴᴅ Pᴀʏ",
         "HELP": """
 💰 **Balance Commands**:
-- `/balance` → Check your balance.
+- `/balance` , `acc`  → Check your balance.
 - `/balance @username` → Check another user's balance.
 - `/balance user_id` → Check balance using user ID.
 

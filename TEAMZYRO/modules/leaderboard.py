@@ -12,7 +12,7 @@ from TEAMZYRO import (app, PHOTO_URL, OWNER_ID,
 from TEAMZYRO import sudo_users as SUDO_USERS
 
 # Global Leaderboard Command
-@app.on_message(filters.command("TopGroups"))
+@app.on_message(filters.command(["TopGroups", "groups"]))
 async def global_leaderboard(client: Client, message: Message):
     cursor = top_global_groups_collection.aggregate([
         {"$project": {"group_name": 1, "count": 1}},

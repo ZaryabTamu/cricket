@@ -3,21 +3,41 @@ from pyrogram import Client, filters
 from pyrogram.types import Message
 import html
 
-async def get_balance(user_id):
-    user_data = await user_collection.find_one({'id': user_id}, {'balance': 1, 'tokens': 1})
-    if user_data:
-        return user_data.get('balance', 0), user_data.get('tokens', 0)
-    return 0, 0
 
-@app.on_message(filters.command("balance"))
+# You already have this globally in your project
+# from Yumeko import user_collection  ← assumed to be already imported
+
+DEFAULT_BALANCE = 500
+DEFAULT_TOKENS = 20
+
+# Fetch or create user balance and tokens
+async def get_balance(user_id, name):
+    user_data = await user_collection.find_one({'id': user_id})
+    if not user_data:
+        await user_collection.insert_one({
+            'id': user_id,
+            'name': name,
+            'balance': DEFAULT_BALANCE,
+            'tokens': DEFAULT_TOKENS
+        })
+        return DEFAULT_BALANCE, DEFAULT_TOKENS
+    return user_data.get('balance', 0), user_data.get('tokens', 0)
+
+# Command handler for /balance, /bal, /acc
+@Client.on_message(filters.command(["balance", "bal", "acc"]))
 async def balance(client: Client, message: Message):
-    user_id = message.from_user.id
-    user_balance, user_tokens = await get_balance(user_id)
+    user = message.from_user
+    user_id = user.id
+    name = html.escape(user.first_name or "User")
+
+    balance, tokens = await get_balance(user_id, name)
+
     response = (
-        f"{html.escape(message.from_user.first_name)} \n◈⌠ {user_balance} coins⌡\n"
-        f"◈ ⌠ {user_tokens} Tokens⌡"
+        f"<b>{name}'s Profile</b>\n"
+        f"Balance  : 💲 <b>{balance:,}</b>\n"
+        f"Coin     : 🪙 <b>{tokens:,}</b>"
     )
-    await message.reply_text(response, reply_to_message_id=False)
+    await message.reply_text(response, reply_to_message_id=message.id)
 
 @app.on_message(filters.command("pay"))
 async def pay(client: Client, message: Message):

@@ -64,12 +64,12 @@ async def ctop(client: Client, message: Message):
     await message.reply_photo(photo=photo_url, caption=leaderboard_message, parse_mode='html')
 
 # Stats Command
-@app.on_message(filters.command("st"))
+@app.on_message(filters.command(["st", "stats"]))
 async def stats(client: Client, message: Message):
     user_count = await user_collection.count_documents({})
     group_count = await group_user_totals_collection.distinct('group_id')
 
-    await message.reply_text(f'Total Users: {user_count}\nTotal groups: {len(group_count)}')
+    await message.reply_text(f'👤Total Users: {user_count}\n🧿Total groups: {len(group_count)}')
 
 # Send Users Document Command
 @app.on_message(filters.command("list"))

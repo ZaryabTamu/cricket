@@ -6,7 +6,7 @@ from TEAMZYRO.unit.zyro_rarity import rarity_map  # Importing rarity_map
 
 SUDO_USERS = SUDO
 
-@app.on_message(filters.command("deletechar"))
+@app.on_message(filters.command("cdelete"))
 @require_power("delete_character")
 async def delete_handler(client, message):
     try:
@@ -38,7 +38,7 @@ async def delete_handler(client, message):
 
 import time
 
-@app.on_message(filters.command("gupdate"))
+@app.on_message(filters.command("cupdate"))
 @require_power("update_character")
 async def update(client: Client, message: Message):
     try:

@@ -1,8 +1,9 @@
 from TEAMZYRO import *
 from pyrogram import Client, filters
 from pyrogram.types import Message, User
+CallbackQuery
 import html
-
+import asyncio
 
 DEFAULT_BALANCE = 500
 DEFAULT_TOKENS = 20
@@ -53,13 +54,15 @@ async def balance_handler(client: Client, message: Message):
     )
     await message.reply_text(response, reply_to_message_id=message.id)
 
+
 @app.on_message(filters.command("pay"))
 async def pay(client: Client, message: Message):
-    sender_id = message.from_user.id
+    sender = message.from_user
+    sender_id = sender.id
     args = message.command
 
     if len(args) < 2:
-        await message.reply_text("Usage: /pay <amount> [@username/user_id] or reply to a user.")
+        await message.reply_text("Usage: /pay <amount> [@username/user_id] [reason if amount > 20000] or reply to a user.")
         return
 
     try:
@@ -70,54 +73,86 @@ async def pay(client: Client, message: Message):
         await message.reply_text("Invalid amount. Please enter a positive number.")
         return
 
-    recipient_id = None
-    recipient_name = None
-
+    # Identify recipient
+    recipient = None
     if message.reply_to_message:
-        recipient_id = message.reply_to_message.from_user.id
-        recipient_name = message.reply_to_message.from_user.first_name
+        recipient = message.reply_to_message.from_user
     elif len(args) > 2:
         try:
-            recipient_id = int(args[2])
-        except ValueError:
-            recipient_username = args[2].lstrip('@')  # Remove @ from username
-            user_data = await user_collection.find_one({'username': recipient_username}, {'id': 1, 'first_name': 1})
-            if user_data:
-                recipient_id = user_data['id']
-                recipient_name = user_data.get('first_name', recipient_username)
+            if args[2].startswith("@"):
+                recipient = await client.get_users(args[2])
             else:
-                await message.reply_text("Recipient not found. Please check the username or reply to a user.")
-                return
+                recipient = await client.get_users(int(args[2]))
+        except Exception:
+            return await message.reply_text("❌ Recipient not found. Use @username, ID or reply.")
 
-    if not recipient_id:
-        await message.reply_text("Recipient not found. Reply to a user or provide a valid user ID/username.")
+    if not recipient:
+        return await message.reply_text("❌ Recipient not found. Reply or use @username/ID.")
+
+    recipient_id = recipient.id
+    recipient_name = html.escape(recipient.first_name or str(recipient.id))
+    sender_name = html.escape(sender.first_name or str(sender.id))
+
+    if sender_id == recipient_id:
+        return await message.reply_text("You cannot pay yourself.")
+
+    # Owner can pay unlimited
+    if sender_id == OWNER_ID:
+        await user_collection.update_one({'id': recipient_id}, {'$inc': {'balance': amount}}, upsert=True)
+        _, rec_tokens = await get_balance(recipient_id, recipient_name)
+        await message.reply_text(f"✅ You gifted {amount} coins to {recipient_name} (as owner).")
+        await client.send_message(
+            recipient_id,
+            f"🎁 {sender_name} (owner) sent you {amount} coins.\n💰 Your New Balance: {amount:,} coins"
+        )
         return
 
-    sender_balance, _ = await get_balance(sender_id)
+    sender_balance, _ = await get_balance(sender_id, sender_name)
     if sender_balance < amount:
-        await message.reply_text("Insufficient balance.")
+        return await message.reply_text("🚫 You don’t have enough balance.")
+
+    # If amount <= 20k, proceed instantly
+    if amount <= 20000:
+        await user_collection.update_one({'id': sender_id}, {'$inc': {'balance': -amount}})
+        await user_collection.update_one({'id': recipient_id}, {'$inc': {'balance': amount}}, upsert=True)
+
+        updated_sender_balance, _ = await get_balance(sender_id, sender_name)
+        updated_recipient_balance, _ = await get_balance(recipient_id, recipient_name)
+
+        await message.reply_text(
+            f"✅ You paid {amount:,} coins to {recipient_name}.\n"
+            f"💰 Your New Balance: {updated_sender_balance:,} coins"
+        )
+        await client.send_message(
+            recipient_id,
+            f"🎉 You received {amount:,} coins from {sender_name}!\n"
+            f"💰 Your New Balance: {updated_recipient_balance:,} coins"
+        )
         return
 
-    await user_collection.update_one({'id': sender_id}, {'$inc': {'balance': -amount}})
-    await user_collection.update_one({'id': recipient_id}, {'$inc': {'balance': amount}})
+    # If amount > 20k, ask reason
+    reason = " ".join(args[3:]) if len(args) > 3 else None
+    if not reason:
+        return await message.reply_text("❗ You must provide a reason for large payments.\nUsage:\n`/pay 30000 @user For event prize`", parse_mode="markdown")
 
-    updated_sender_balance, _ = await get_balance(sender_id)
-    updated_recipient_balance, _ = await get_balance(recipient_id)
-
-    # Use first name or ID for recipient in the response
-    recipient_display = html.escape(recipient_name or str(recipient_id))
-    sender_display = html.escape(message.from_user.first_name or str(sender_id))
-
-    await message.reply_text(
-        f"✅ You paid {amount} coins to {recipient_display}.\n"
-        f"💰 Your New Balance: {updated_sender_balance} coins"
-    )
-
+    # Send request to OWNER
+    keyboard = InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton("✅ Approve", callback_data=f"approve_{sender_id}_{recipient_id}_{amount}"),
+            InlineKeyboardButton("❌ Reject", callback_data=f"reject_{sender_id}_{recipient_id}_{amount}")
+        ]
+    ])
     await client.send_message(
-        chat_id=recipient_id,
-        text=f"🎉 You received {amount} coins from {sender_display}!\n"
-        f"💰 Your New Balance: {updated_recipient_balance} coins"
+        OWNER_ID,
+        f"💸 <b>Payment Request</b>\n\n"
+        f"👤 From: <a href='tg://user?id={sender_id}'>{sender_name}</a>\n"
+        f"➡ To: <a href='tg://user?id={recipient_id}'>{recipient_name}</a>\n"
+        f"💰 Amount: <b>{amount:,}</b> coins\n"
+        f"📝 Reason: <i>{html.escape(reason)}</i>",
+        reply_markup=keyboard,
+        parse_mode="html"
     )
+    await message.reply_text("📨 Payment request sent to the owner for approval.")
 
 @app.on_message(filters.command("redeemtoken"))
 async def redeem_token(client: Client, message: Message):

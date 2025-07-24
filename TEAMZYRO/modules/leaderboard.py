@@ -21,7 +21,7 @@ async def global_leaderboard(client: Client, message: Message):
     ])
     leaderboard_data = await cursor.to_list(length=10)
 
-    leaderboard_message = "<b>TOP 10 GROUPS WHO GUESSED MOST CHARACTERS</b>\n\n"
+    leaderboard_message = "<b>⚜️TOP 10 GROUPS WHO GUESSED MOST CHARACTERS</b>\n\n"
 
     for i, group in enumerate(leaderboard_data, start=1):
         group_name = html.escape(group.get('group_name', 'Unknown'))
@@ -36,7 +36,7 @@ async def global_leaderboard(client: Client, message: Message):
     await message.reply_photo(photo=photo_url, caption=leaderboard_message, parse_mode='html')
 
 # Group Top Users Command
-@app.on_message(filters.command("ctop"))
+@app.on_message(filters.command(["ctop", "topusers"]))
 async def ctop(client: Client, message: Message):
     chat_id = message.chat.id
 
@@ -48,7 +48,7 @@ async def ctop(client: Client, message: Message):
     ])
     leaderboard_data = await cursor.to_list(length=10)
 
-    leaderboard_message = "<b>TOP 10 USERS WHO GUESSED CHARACTERS MOST TIME IN THIS GROUP..</b>\n\n"
+    leaderboard_message = "<b>⚡TOP 10 USERS WHO GUESSED CHARACTERS MOST TIME IN THIS GROUP..</b>\n\n"
 
     for i, user in enumerate(leaderboard_data, start=1):
         username = user.get('username', 'Unknown')

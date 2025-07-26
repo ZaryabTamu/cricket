@@ -46,7 +46,7 @@ async def show_balance(client: Client, message: Message):
     name = html.escape(target_user.first_name)
 
     text = (
-        f"***{name}***'s Profile\n"
+        f"**{name}**'s Profile\n"
         f"Balance : 💲 {user_data['balance']}\n"
         f"Coin : 🪙 {user_data['coin']}"
     )

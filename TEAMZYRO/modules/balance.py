@@ -5,54 +5,54 @@ CallbackQuery
 import html
 import asyncio
 
-DEFAULT_BALANCE = 500
-DEFAULT_TOKENS = 20
+# In-memory DB (replace with actual DB in production)
+USER_DB = {}
 
-# Fetch or create user balance
-async def get_balance(user_id: int, name: str):
-    user_data = await user_collection.find_one({'id': user_id})
-    if not user_data:
-        await user_collection.insert_one({
-            'id': user_id,
-            'name': name,
-            'balance': DEFAULT_BALANCE,
-            'tokens': DEFAULT_TOKENS
-        })
-        return DEFAULT_BALANCE, DEFAULT_TOKENS
-    return user_data.get('balance', 0), user_data.get('tokens', 0)
+def get_user_data(user_id):
+    return USER_DB.setdefault(user_id, {"balance": 0, "coin": 0})
 
-# Resolve user by reply, username, or ID
-async def get_target_user(client: Client, message: Message) -> User:
+def update_user_data(user_id, data):
+    USER_DB[user_id] = data
+
+def extract_user_id(message: Message):
+    # Priority: replied user > /command <user_id|username>
     if message.reply_to_message:
-        return message.reply_to_message.from_user
-    args = message.text.split()
-    if len(args) > 1:
-        identifier = args[1]
+        return message.reply_to_message.from_user.id
+    elif len(message.command) >= 2:
+        return message.command[1]
+    else:
+        return message.from_user.id  # fallback to self
+
+@Client.on_message(filters.command(["balance", "bal", "acc", "account", "wallet", "accountbal"]))
+async def show_balance(client: Client, message: Message):
+    user_input = None
+    target_user = None
+
+    # Get user: replied, argument, or self
+    if message.reply_to_message:
+        target_user = message.reply_to_message.from_user
+    elif len(message.command) >= 2:
+        user_input = message.command[1]
         try:
-            if identifier.startswith("@"):
-                return await client.get_users(identifier)
-            else:
-                return await client.get_users(int(identifier))
+            if user_input.startswith("@"):
+                user_input = user_input[1:]
+            target_user = await client.get_users(user_input)
         except Exception:
-            return None
-    return message.from_user
+            return await message.reply_text("❌ User not found.")
+    else:
+        target_user = message.from_user
 
-@Client.on_message(filters.command(["acc", "bal", "balance", "account"]))
-async def balance_handler(client: Client, message: Message):
-    user = await get_target_user(client, message)
-    if not user:
-        await message.reply_text("❌ Couldn't find that user.")
-        return
+    user_data = get_user_data(target_user.id)
+    name = html.escape(target_user.first_name)
 
-    name = html.escape(user.first_name or "User")
-    balance, tokens = await get_balance(user.id, name)
-
-    response = (
-        f"<b>{name}'s Profile</b>\n"
-        f"Balance  : 💲 <b>{balance:,}</b>\n"
-        f"Coin     : 🪙 <b>{tokens:,}</b>"
+    text = (
+        f"***{name}***'s Profile\n"
+        f"Balance : 💲 {user_data['balance']}\n"
+        f"Coin : 🪙 {user_data['coin']}"
     )
-    await message.reply_text(response, reply_to_message_id=message.id)
+
+    await message.reply_text(text)
+
 
 
 @app.on_message(filters.command("pay"))

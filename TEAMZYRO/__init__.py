@@ -30,14 +30,14 @@ api_hash = "22f05593e2f2f365ebc1fcc03446a8c8"
 
 
 TOKEN = "7392456702:AAEPBt5qkAaP5edIg5_wP3kI00ERdeoH3KA"
-CHARA_CHANNEL_ID = "none2025databese"
+CHARA_CHANNEL_ID = "flirtalert69"
 GLOG = CHARA_CHANNEL_ID
 
-SUPPORT_CHAT_ID = os.getenv("SUPPORT_CHAT_ID", "-1002875912592")
+SUPPORT_CHAT_ID = os.getenv("SUPPORT_CHAT_ID", "-1002575606190")
 mongo_url = "mongodb+srv://harshmanjhi1801:webapp@cluster0.xxwc4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
 
-MUSJ_JOIN = os.getenv("MUSJ_JOIN", "Thezyroempire")
+MUSJ_JOIN = os.getenv("MUSJ_JOIN", "pookieempire")
 
 # Modified to support both image and video URLs
 START_MEDIA = os.getenv("START_MEDIA", "https://files.catbox.moe/w63mql.jpg,https://files.catbox.moe/tz60w2.jpg").split(',')
@@ -49,8 +49,8 @@ PHOTO_URL = [
 
 STATS_IMG = ["https://files.catbox.moe/tom995.jpg"] 
 
-SUPPORT_CHAT = os.getenv("SUPPORT_CHAT", "https://t.me/thezyroempire")
-UPDATE_CHAT = os.getenv("UPDATE_CHAT", "https://t.me/Zyrosupport")
+SUPPORT_CHAT = os.getenv("SUPPORT_CHAT", "https://t.me/pookieempire")
+UPDATE_CHAT = os.getenv("UPDATE_CHAT", "https://t.me/pookieempire")
 SUDO = list(map(int, os.getenv("SUDO", "1139478215,6037958673").split(',')))
 OWNER_ID = int(os.getenv("OWNER_ID", "6037958673"))
 

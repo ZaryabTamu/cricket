@@ -21,12 +21,12 @@
     },
     "GLOG": {
       "description": "Username or ID of the log channel",
-      "value": "Zlog12",
+      "value": "universalsolvental",
       "required": true
     },
     "CHARA_CHANNEL_ID": {
       "description": "Username or ID of the character channel",
-      "value": "Zlog12",
+      "value": "universalsolvental",
       "required": true
     },
     "SUPPORT_CHAT_ID": {
@@ -41,12 +41,12 @@
     },
     "PHOTO_URL_1": {
       "description": "First photo URL for the bot",
-      "value": "https://files.catbox.moe/7ccoub.jpg",
+      "value": "https://files.catbox.moe/spbt78.jpg",
       "required": false
     },
     "PHOTO_URL_2": {
       "description": "Second photo URL for the bot",
-      "value": "https://files.catbox.moe/7ccoub.jpg",
+      "value": "https://files.catbox.moe/spbt78.jpg",
       "required": false
     },
     "SUPPORT_CHAT": {

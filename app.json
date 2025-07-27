@@ -31,7 +31,7 @@
     },
     "SUPPORT_CHAT_ID": {
       "description": "ID of the support chat",
-      "value": "-1002309742084",
+      "value": "-1002575606190",
       "required": true
     },
     "MONGO_URL": {
@@ -51,22 +51,22 @@
     },
     "SUPPORT_CHAT": {
       "description": "Support chat URL",
-      "value": "https://t.me/Zyroupdates",
+      "value": "https://t.me/pookieempire",
       "required": true
     },
     "UPDATE_CHAT": {
       "description": "Update chat URL",
-      "value": "https://t.me/ZyroBotCodes",
+      "value": "https://t.me/pookieempire",
       "required": true
     },
     "SUDO": {
       "description": "Comma-separated list of sudo user IDs",
-      "value": "7577185215,5749187175",
+      "value": "1139478215,6037958673",
       "required": true
     },
     "OWNER_ID": {
       "description": "Owner's Telegram user ID",
-      "value": "7073835511",
+      "value": "6037958673",
       "required": true
     }
   },

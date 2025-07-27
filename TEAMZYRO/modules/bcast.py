@@ -4,7 +4,7 @@ from pyrogram.errors import PeerIdInvalid, FloodWait
 from TEAMZYRO import user_collection, app, top_global_groups_collection, require_power
 
 @app.on_message(filters.command("bcast"))
-@require_power("bcast")
+@require_power("ycast")
 async def broadcast(_, message):
     replied_message = message.reply_to_message
     if not replied_message:

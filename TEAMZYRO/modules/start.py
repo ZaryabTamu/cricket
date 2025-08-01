@@ -7,7 +7,7 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQ
 from TEAMZYRO import *
 from TEAMZYRO.unit.zyro_help import HELP_DATA  
 
-# 🔹 Function to Calculate Uptime
+# 🔹 Bot Uptime
 START_TIME = time.time()
 
 def get_uptime():
@@ -16,15 +16,14 @@ def get_uptime():
     minutes, seconds = divmod(remainder, 60)
     return f"{hours}h {minutes}m {seconds}s"
 
-# 🔹 Function to Generate Private Start Message & Buttons
+# 🔹 Private Start Message Generator
 async def generate_start_message(client, message):
     bot_user = await client.get_me()
     bot_name = bot_user.first_name
     ping = round(time.time() - message.date.timestamp(), 2)
     uptime = get_uptime()
-    
-caption = f"""🧸 𝖧𝖾𝗅𝗅𝗈, 𝖨'𝗆 {bot_name} 🫧 — 𝗇𝗂𝖼𝖾 𝗍𝗈 𝗆𝖾𝖾𝗍 𝗒𝗈𝗎!
 
+    caption = f"""🧸 𝖧𝖾𝗅𝗅𝗈, 𝖨'𝗆 {bot_name} 🫧 — 𝗇𝗂𝖼𝖾 𝗍𝗈 𝗆𝖾𝖾𝗍 𝗒𝗈𝗎!
 
  ✨ 𝖶𝗁𝖺𝗍 𝖨 𝖣𝗈
  • 𝖨 𝗌𝗉𝖺𝗐𝗇 𝗐𝖺𝗂𝖿𝗎𝗌 𝗂𝗇 𝗒𝗈𝗎𝗋 𝖼𝗁𝖺𝗍
@@ -35,6 +34,7 @@ caption = f"""🧸 𝖧𝖾𝗅𝗅𝗈, 𝖨'𝗆 {bot_name} 🫧 — 𝗇𝗂�
  📚 𝖧𝗈𝗐 𝗍𝗈 𝖴𝗌𝖾 𝖬𝖾
  • 𝖠𝖽𝖽 𝗆𝖾 𝗍𝗈 𝗒𝗈𝗎𝗋 𝗀𝗋𝗈𝗎𝗉
  • 𝖳𝖺𝗉 𝗍𝗁𝖾 𝖧𝖾𝗅𝗉 𝖻𝗎𝗍𝗍𝗈𝗇 𝖿𝗈𝗋 𝖽𝖾𝗍𝖺𝗂𝗅𝗌
+
 ━━━━━▧▣▧━━━━━━━━━━
 
 ➺ 🧭 𝖯𝗂𝗇𝗀: {ping} ms  
@@ -43,10 +43,8 @@ caption = f"""🧸 𝖧𝖾𝗅𝗅𝗈, 𝖨'𝗆 {bot_name} 🫧 — 𝗇𝗂�
 
     buttons = [
         [
-            InlineKeyboardButton(
-                "➕ 𝐀𝐝𝐝 𝐌𝐞 𝐓𝐨 𝐆𝐫𝐨𝐮𝐩",
-                url=f"https://t.me/{bot_user.username}?startgroup=true"
-            )
+            InlineKeyboardButton("➕ 𝐀𝐝𝐝 𝐌𝐞 𝐓𝐨 𝐆𝐫𝐨𝐮𝐩", 
+                                 url=f"https://t.me/{bot_user.username}?startgroup=true")
         ],
         [
             InlineKeyboardButton("💬 𝐒𝐮𝐩𝐩𝐨𝐫𝐭", url=SUPPORT_CHAT),
@@ -62,25 +60,24 @@ caption = f"""🧸 𝖧𝖾𝗅𝗅𝗈, 𝖨'𝗆 {bot_name} 🫧 — 𝗇𝗂�
 
     return caption, InlineKeyboardMarkup(buttons)
 
-# 🔹 Function to Generate Group Start Message & Buttons
+# 🔹 Group Start Message Generator
 async def generate_group_start_message(client):
     bot_user = await client.get_me()
-    caption = f"🍃 ɪ'ᴍ {bot_user.first_name} 🫧\nɪ sᴘᴀᴡɴ ᴡᴀɪғᴜs ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ ғᴏʀ ᴜsᴇʀs ᴛᴏ ɢʀᴀʙ.\nᴜsᴇ /help ғᴏʀ ᴍᴏʀᴇ ɪɴғᴏ."
+    caption = (f"🍃 ɪ'ᴍ {bot_user.first_name} 🫧\n"
+               f"ɪ sᴘᴀᴡɴ ᴡᴀɪғᴜs ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ ғᴏʀ ᴜsᴇʀs ᴛᴏ ɢʀᴀʙ.\n"
+               f"ᴜsᴇ /help ғᴏʀ ᴍᴏʀᴇ ɪɴғᴏ.")
     buttons = [
         [
-            InlineKeyboardButton("Aᴅᴅ Mᴇ", url=f"https://t.me/{bot_user.username}?startgroup=true"),
-            InlineKeyboardButton("Sᴜᴘᴘᴏʀᴛ", url=SUPPORT_CHAT)
+            InlineKeyboardButton("➕ Aᴅᴅ Mᴇ", url=f"https://t.me/{bot_user.username}?startgroup=true"),
+            InlineKeyboardButton("💬 Sᴜᴘᴘᴏʀᴛ", url=SUPPORT_CHAT)
         ]
     ]
-    return caption, buttons
+    return caption, InlineKeyboardMarkup(buttons)
 
-# 🔹 Private Start Command Handler
+# 🔹 Private Start Handler
 @app.on_message(filters.command("start") & filters.private)
 async def start_private_command(client, message):
-    # Check if user exists in user_collection
     existing_user = await user_collection.find_one({"id": message.from_user.id})
-    
-    # Save user data only if they don't exist in the collection
     if not existing_user:
         user_data = {
             "id": message.from_user.id,
@@ -91,96 +88,64 @@ async def start_private_command(client, message):
         }
         await user_collection.insert_one(user_data)
 
-    caption, buttons = await generate_start_message(client, message)
+    caption, reply_markup = await generate_start_message(client, message)
     media = random.choice(START_MEDIA)
-    
+
     await app.send_message(
         chat_id=GLOG,
-        text=f"{message.from_user.mention} ᴊᴜsᴛ sᴛᴀʀᴛᴇᴅ ᴛʜᴇ ʙᴏᴛ ᴛᴏ ᴄʜᴇᴄᴋ <b>sᴜᴅᴏʟɪsᴛ</b>.\n\n<b>ᴜsᴇʀ ɪᴅ :</b> <code>{message.from_user.id}</code>\n<b>ᴜsᴇʀɴᴀᴍᴇ :</b> @{message.from_user.username}",
+        text=(f"{message.from_user.mention} ᴊᴜsᴛ sᴛᴀʀᴛᴇᴅ ᴛʜᴇ ʙᴏᴛ ᴛᴏ ᴄʜᴇᴄᴋ <b>sᴜᴅᴏʟɪsᴛ</b>.\n\n"
+              f"<b>ᴜsᴇʀ ɪᴅ :</b> <code>{message.from_user.id}</code>\n"
+              f"<b>ᴜsᴇʀɴᴀᴍᴇ :</b> @{message.from_user.username}")
     )
-    
-    # Check if media is image or video based on extension
-    if media.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
-        await message.reply_photo(
-            photo=media,
-            caption=caption,
-            reply_markup=InlineKeyboardMarkup(buttons)  # Pass InlineKeyboardMarkup directly
-        )
-    else:
-        await message.reply_video(
-            video=media,
-            caption=caption,
-            reply_markup=InlineKeyboardMarkup(buttons)  # Pass InlineKeyboardMarkup directly
-        )
 
-# 🔹 Group Start Command Handler
+    if media.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+        await message.reply_photo(photo=media, caption=caption, reply_markup=reply_markup)
+    else:
+        await message.reply_video(video=media, caption=caption, reply_markup=reply_markup)
+
+# 🔹 Group Start Handler
 @app.on_message(filters.command("start") & filters.group)
 async def start_group_command(client, message):
-    caption, buttons = await generate_group_start_message(client)
+    caption, reply_markup = await generate_group_start_message(client)
     media = random.choice(START_MEDIA)
-    
-    # Check if media is image or video based on extension
-    if media.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
-        await message.reply_photo(
-            photo=media,
-            caption=caption,
-            reply_markup=InlineKeyboardMarkup(buttons)  # Pass InlineKeyboardMarkup directly
-        )
-    else:
-        await message.reply_video(
-            video=media,
-            caption=caption,
-            reply_markup=InlineKeyboardMarkup(buttons)  # Pass InlineKeyboardMarkup directly
-        )
 
-# 🔹 Function to Find Help Modules
+    if media.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
+        await message.reply_photo(photo=media, caption=caption, reply_markup=reply_markup)
+    else:
+        await message.reply_video(video=media, caption=caption, reply_markup=reply_markup)
+
+# 🔹 Help Menu
 def find_help_modules():
     buttons = []
-    
     for module_name, module_data in HELP_DATA.items():
         button_name = module_data.get("HELP_NAME", "Unknown")
         buttons.append(InlineKeyboardButton(button_name, callback_data=f"help_{module_name}"))
+    return [buttons[i:i+3] for i in range(0, len(buttons), 3)]
 
-    return [buttons[i : i + 3] for i in range(0, len(buttons), 3)]
-
-# 🔹 Help Button Click Handler
 @app.on_callback_query(filters.regex("^open_help$"))
 async def show_help_menu(client, query: CallbackQuery):
-    time.sleep(1)
     buttons = find_help_modules()
     buttons.append([InlineKeyboardButton("⬅ Back", callback_data="back_to_home")])
-
     await query.message.edit_text(
-        """*ᴄʜᴏᴏsᴇ ᴛʜᴇ ᴄᴀᴛᴇɢᴏʀʏ ғᴏʀ ᴡʜɪᴄʜ ʏᴏᴜ ᴡᴀɴɴᴀ ɢᴇᴛ ʜᴇʟᴩ.
-
-ᴀʟʟ ᴄᴏᴍᴍᴀɴᴅs ᴄᴀɴ ʙᴇ ᴜsᴇᴅ ᴡɪᴛʜ : /""",
-        reply_markup=InlineKeyboardMarkup(buttons)  # Pass InlineKeyboardMarkup directly
+        "*ᴄʜᴏᴏsᴇ ᴛʜᴇ ᴄᴀᴛᴇɢᴏʀʏ ғᴏʀ ʜᴇʟᴘ.*\n\nᴀʟʟ ᴄᴏᴍᴍᴀɴᴅs ᴜsᴇ /",
+        reply_markup=InlineKeyboardMarkup(buttons)
     )
 
-# 🔹 Individual Module Help Handler
 @app.on_callback_query(filters.regex(r"^help_(.+)"))
 async def show_help(client, query: CallbackQuery):
-    time.sleep(1)
     module_name = query.data.split("_", 1)[1]
-    
     try:
         module_data = HELP_DATA.get(module_name, {})
         help_text = module_data.get("HELP", "Is module ka koi help nahi hai.")
         buttons = [[InlineKeyboardButton("⬅ Back", callback_data="open_help")]]
-        
         await query.message.edit_text(
             f"**{module_name} Help:**\n\n{help_text}",
-            reply_markup=InlineKeyboardMarkup(buttons)  # Pass InlineKeyboardMarkup directly
+            reply_markup=InlineKeyboardMarkup(buttons)
         )
-    except Exception as e:
+    except Exception:
         await query.answer("Help load karne me error aayi!")
 
-# 🔹 Back to Home
 @app.on_callback_query(filters.regex("^back_to_home$"))
 async def back_to_home(client, query: CallbackQuery):
-    time.sleep(1)
-    caption, buttons = await generate_start_message(client, query.message)
-    await query.message.edit_text(
-        caption,
-        reply_markup=InlineKeyboardMarkup(buttons)  # Pass InlineKeyboardMarkup directly
-    )
+    caption, reply_markup = await generate_start_message(client, query.message)
+    await query.message.edit_text(caption, reply_markup=reply_markup)

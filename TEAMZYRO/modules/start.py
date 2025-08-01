@@ -42,16 +42,25 @@ caption = f"""🧸 𝖧𝖾𝗅𝗅𝗈, 𝖨'𝗆 {bot_name} 🫧 — 𝗇𝗂�
 """
 
     buttons = [
-    [InlineKeyboardButton("➕ 𝐀𝐝𝐝 𝐌𝐞 𝐓𝐨 𝐆𝐫𝐨𝐮𝐩", url=f"https://t.me/{bot_user.username}?startgroup=true")],
-    [
-        InlineKeyboardButton("💬 𝐒𝐮𝐩𝐩𝐨𝐫𝐭", url=SUPPORT_CHAT),
-        InlineKeyboardButton("📢 𝐂𝐡𝐚𝐧𝐧𝐞𝐥", url=UPDATE_CHAT)
-    ],
-    [InlineKeyboardButton("📘 𝐇𝐞𝐥𝐩", callback_data="open_help")],
-    [InlineKeyboardButton("👑 𝐌𝐲 𝐆𝐨𝐝", url="https://t.me/billichor")]
-]
-    
-    return caption, buttons
+        [
+            InlineKeyboardButton(
+                "➕ 𝐀𝐝𝐝 𝐌𝐞 𝐓𝐨 𝐆𝐫𝐨𝐮𝐩",
+                url=f"https://t.me/{bot_user.username}?startgroup=true"
+            )
+        ],
+        [
+            InlineKeyboardButton("💬 𝐒𝐮𝐩𝐩𝐨𝐫𝐭", url=SUPPORT_CHAT),
+            InlineKeyboardButton("📢 𝐂𝐡𝐚𝐧𝐧𝐞𝐥", url=UPDATE_CHAT)
+        ],
+        [
+            InlineKeyboardButton("📘 𝐇𝐞𝐥𝐩", callback_data="open_help")
+        ],
+        [
+            InlineKeyboardButton("👑 𝐌𝐲 𝐆𝐨𝐝", url="https://t.me/billichor")
+        ]
+    ]
+
+    return caption, InlineKeyboardMarkup(buttons)
 
 # 🔹 Function to Generate Group Start Message & Buttons
 async def generate_group_start_message(client):

@@ -5,7 +5,7 @@ HELP_DATA = {
         "HELP_NAME": "Bᴀʟ Aɴᴅ Pᴀʏ",
         "HELP": """
 💰 **Balance Commands**:
-- `/balance` , `acc`  → Check your balance.
+- `/balance`  → Check your balance.
 - `/balance @username` → Check another user's balance.
 - `/balance user_id` → Check balance using user ID.
 
@@ -24,7 +24,7 @@ HELP_DATA = {
         "HELP": """
 Use `/check <character_id>` to view details of a character.
 
-- Displays character ID, name, anime, and rarity.
+- Displays character ID, name, team, and rarity.
 - Shows an image or video if available.
 - Use the 'Who Have It' button to see the top 10 owners.
 """
@@ -50,7 +50,7 @@ Use `/harem` or `/collection` to view your collected characters.
 - Use "Collection" button for detailed inline view.
 - "💌 AMV" button shows a video-only collection.
 
-Characters are grouped by anime and show the count you own.
+Characters are grouped by team and show the count you own.
 """
     },
     "inline": {
@@ -58,12 +58,12 @@ Characters are grouped by anime and show the count you own.
         "HELP": """
 Use inline queries to search for characters or view collections.
 
-- `@Gaming_X_World_Bot query` → Search for characters.
-- `@Gaming_X_World_Bot collection.<user_id>` → View a user's character collection.
-- `@Gaming_X_World_Bot collection.<user_id> <name>` → Search within a user's collection.
-- `@Gaming_X_World_Bot <query>.AMV` → Show characters with video clips.
+- `@CollectCricketerXBot query` → Search for characters.
+- `@CollectCricketerXBot collection.<user_id>` → View a user's character collection.
+- `@CollectCricketerXBot collection.<user_id> <name>` → Search within a user's collection.
+- `@CollectCricketerXBot <query>.AMV` → Show characters with video clips.
 
-Results include character name, anime, rarity, and image/video.
+Results include character name, team, rarity, and image/video.
 """
     },
     "favorites": {
@@ -191,7 +191,7 @@ Commands:
 
 Each result includes:
 - Character name
-- Anime name
+- Team name
 - Character ID
 - Rarity indicator
 """

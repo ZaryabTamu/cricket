@@ -85,7 +85,7 @@ async def valentine(_, message: t.Message):
                     f"💖 **Happy Valentine's Day!** {mention}\n\n"
                     f"🌟 **Name**: `{character['name']}`  \n"
                     f"💖 **Rarity**: `{character['rarity']}`  \n"
-                    f"📺 **Anime**: `{character['anime']}`  \n"
+                    f"📺 **Team**: `{character['anime']}`  \n"
                     f"🆔 **ID**: `{character['id']}`  \n\n"
                     f"💕 **Come back next Valentine's season for another special character!** 💕"
                 )

@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from TEAMZYRO import ZYRO as bot
 from TEAMZYRO import user_collection, collection, user_nguess_progress, user_guess_progress
 
-chat = "-1002875912592"
+chat = "-1002613457547"
 
 claim_lock = {}
 
@@ -50,7 +50,7 @@ async def mclaim(_, message: t.Message):
     try:
         # Ensure the user is in the correct chat
         if str(message.chat.id) != chat:
-            join_button = InlineKeyboardMarkup([[InlineKeyboardButton("Join Here", url="https://t.me/Zyroupdates")]])
+            join_button = InlineKeyboardMarkup([[InlineKeyboardButton("Join Here", url="https://t.me/pookieempire")]])
             return await message.reply_text(
                 "🍓 ᴊᴏɪɴ ᴛʜᴇ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴄʟᴀɪᴍ ʏᴏᴜʀ Dᴀɪʟʏ ᴄʜᴀʀᴀᴄᴛᴇʀ ",
                 reply_markup=join_button

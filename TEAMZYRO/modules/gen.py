@@ -61,7 +61,7 @@ async def generate_redeem_code(client, message):
     # Format the response message
     char_info = (
         f"🎭 **Character:** `{character['name']}`\n"
-        f"📺 **Anime:** `{character.get('anime', 'N/A')}`\n"
+        f"📺 **Team:** `{character.get('anime', 'N/A')}`\n"
         f"🌟 **Rarity:** `{character.get('rarity', 'N/A')}`\n"
         f"🖼 **Image:** [Click Here]({character.get('img_url', '#')})\n\n"
         f"🔢 **Redeem Limit:** `{redeem_limit}`\n"

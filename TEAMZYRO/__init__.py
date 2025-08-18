@@ -29,28 +29,28 @@ api_id = 28731656
 api_hash = "22f05593e2f2f365ebc1fcc03446a8c8"
 
 
-TOKEN = "7392456702:AAEPBt5qkAaP5edIg5_wP3kI00ERdeoH3KA"
-CHARA_CHANNEL_ID = "zlog12"
+TOKEN = "8498629295:AAHPB-qMKSL5EUJzoLN4bcidiEwU0PH-8rk"
+CHARA_CHANNEL_ID = "CollectCricketergroup "
 GLOG = CHARA_CHANNEL_ID
 
-SUPPORT_CHAT_ID = os.getenv("SUPPORT_CHAT_ID", "-1002575606190")
-mongo_url = "mongodb+srv://harshmanjhi1801:webapp@cluster0.xxwc4.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+SUPPORT_CHAT_ID = os.getenv("SUPPORT_CHAT_ID", "-1002613457547")
+mongo_url = "mongodb+srv://I-LOVE-PDF-BOT:I-LOVE-PDF-BOT@cluster0.c51o3a9.mongodb.net/?retryWrites=true&w=majority"
 
 
 MUSJ_JOIN = os.getenv("MUSJ_JOIN", "pookieempire")
 
 # Modified to support both image and video URLs
-START_MEDIA = os.getenv("START_MEDIA", "https://files.catbox.moe/w63mql.jpg,https://files.catbox.moe/tz60w2.jpg").split(',')
+START_MEDIA = os.getenv("START_MEDIA", "https://files.catbox.moe/k41obb.jpg,https://files.catbox.moe/8c5rdy.jpg").split(',')
 
 PHOTO_URL = [
-    os.getenv("PHOTO_URL_1", "https://files.catbox.moe/tz60w2.jpg"),
-    os.getenv("PHOTO_URL_2", "https://files.catbox.moe/w63mql.jpg")
+    os.getenv("PHOTO_URL_1", "https://files.catbox.moe/k41obb.jpg"),
+    os.getenv("PHOTO_URL_2", "https://files.catbox.moe/8c5rdy.jpg")
 ]
 
-STATS_IMG = ["https://files.catbox.moe/tom995.jpg"] 
+STATS_IMG = ["https://files.catbox.moe/rvucm4.jpg"] 
 
 SUPPORT_CHAT = os.getenv("SUPPORT_CHAT", "https://t.me/pookieempire")
-UPDATE_CHAT = os.getenv("UPDATE_CHAT", "https://t.me/pookieempire")
+UPDATE_CHAT = os.getenv("UPDATE_CHAT", "https://t.me/PookieTechTeam")
 SUDO = list(map(int, os.getenv("SUDO", "1139478215,6037958673").split(',')))
 OWNER_ID = int(os.getenv("OWNER_ID", "6037958673"))
 

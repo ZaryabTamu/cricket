@@ -48,8 +48,8 @@ async def set_ctime(client, message):
             await message.reply("⚠️ Bot owner can set ctime between 1 and 200.")
             return
     else:
-        if not 80 <= ctime <= 200:
-            await message.reply("⚠️ Admins can set ctime between 80 and 200.")
+        if not 30 <= ctime <= 200:
+            await message.reply("⚠️ Admins can set ctime between 30 and 200.")
             return
 
     # Update ctime in MongoDB

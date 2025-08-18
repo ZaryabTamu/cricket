@@ -272,8 +272,8 @@ async def handle_claim(client: Client, callback_query):
                 caption_text = (
                     f"🎊 <b>Congratulations!</b> You claimed a character for opening {safe_opened} safe cells!\n"
                     f"🌸 <b>Name:</b> {character['name']}\n"
-                    f"⛩️ <b>Anime:</b> {character['anime']}\n"
-                    f"🌈 <b>Rarity:</b> {character['rarity']}\n"
+                    f"⛩️ <b>Team:</b> {character['anime']}\n"
+                    f"🐾 <b>Rarity:</b> {character['rarity']}\n"
                     f"🆔 <b>ID:</b> {character['id']}"
                 )
                 if safe_opened == 6:

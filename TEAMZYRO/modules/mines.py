@@ -280,8 +280,8 @@ async def handle_claim(client: Client, callback_query):
                     caption_text = (
                         f"🎊 <b>Congratulations!</b> You claimed 2000 coins and a character for opening {safe_opened} safe cells!\n"
                         f"🌸 <b>Name:</b> {character['name']}\n"
-                        f"⛩️ <b>Anime:</b> {character['anime']}\n"
-                        f"🌈 <b>Rarity:</b> {character['rarity']}\n"
+                        f"⛩️ <b>Team:</b> {character['anime']}\n"
+                        f"🐾 <b>Rarity:</b> {character['rarity']}\n"
                         f"🆔 <b>ID:</b> {character['id']}"
                     )
                 await callback_query.message.reply_photo(

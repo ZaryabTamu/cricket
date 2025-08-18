@@ -31,7 +31,7 @@ async def check_character(client, message):
         f"🌟 **Character Info**\n"
         f"🆔 ID: `{character_id}`\n"
         f"📛 Name: {character['name']}\n"
-        f"📺 Anime: {character['anime']}\n"
+        f"🏏 Team: {character['anime']}\n"
         f"💎 Rarity: {character['rarity']}\n"
     )
 

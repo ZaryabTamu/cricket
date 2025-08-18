@@ -6,9 +6,9 @@ from gridfs import GridFS
 from TEAMZYRO import application, CHARA_CHANNEL_ID, SUPPORT_CHAT, OWNER_ID, collection, user_collection, db, SUDO, rarity_map, ZYRO, require_power
 
 # Define the wrong format message and rarity map
-WRONG_FORMAT_TEXT = """Wrong ❌ format...  eg. /upload reply to photo muzan-kibutsuji Demon-slayer 3
+WRONG_FORMAT_TEXT = """Wrong ❌ format...  eg. /upload reply to photo Virat-Kholi Royal-Challengers-Bengaluru 16
 
-format:- /upload reply character-name anime-name rarity-number
+format:- /upload reply cricketer-name team-name rarity-number
 
 use rarity number accordingly rarity Map
 
@@ -158,7 +158,7 @@ async def ul(client, message):
                         photo=catbox_url,
                         caption=(
                             f"Character Name: {character_name}\n"
-                            f"Anime Name: {anime}\n"
+                            f"Team Name: {anime}\n"
                             f"Rarity: {rarity_text}\n"
                             f"ID: {available_id}\n"
                             f"Added by [{message.from_user.first_name}](tg://user?id={message.from_user.id})\n"
@@ -170,7 +170,7 @@ async def ul(client, message):
                         video=catbox_url,
                         caption=(
                             f"Character Name: {character_name}\n"
-                            f"Anime Name: {anime}\n"
+                            f"Team Name: {anime}\n"
                             f"Rarity: {rarity_text}\n"
                             f"ID: {available_id}\n"
                             f"Added by [{message.from_user.first_name}](tg://user?id={message.from_user.id})\n\n"

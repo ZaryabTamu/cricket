@@ -1,21 +1,19 @@
-FROM python:3.11-slim-buster
+FROM python:3.11-slim-bookworm
 
 ENV PIP_NO_CACHE_DIR=1
 
 # Install git and other needed tools
-RUN apt-get update && apt-get install -y git gcc && apt-get clean
+RUN apt-get update && apt-get install -y git gcc && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip and setuptools
-RUN pip3 install --upgrade pip setuptools
+RUN pip install --upgrade pip setuptools
 
 # Copy application code
+WORKDIR /app
 COPY . /app/
 
-# Set working directory
-WORKDIR /app/
-
 # Install Python dependencies
-RUN pip3 install --no-cache-dir -U -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Run the bot
-CMD ["python3", "-m", "TEAMZYRO"]
+CMD ["python", "-m", "TEAMZYRO"]

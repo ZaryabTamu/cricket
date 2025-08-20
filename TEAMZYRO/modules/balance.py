@@ -294,3 +294,70 @@ async def give_handler(client: Client, message: Message):
             "🔹 `c` = Coins 💰\n"
             "🔹 `t` = Tokens 🎫"
         )
+
+@app.on_message(filters.command("redeemtoken"))
+async def redeem_token(client: Client, message: Message):
+    user_id = message.from_user.id
+    args = message.command
+
+    TOKEN_RATE = 1000  # 💰 1000 coins = 🎟 1 token
+
+    # ✅ Step 1: Check arguments
+    if len(args) < 2:
+        await message.reply_text(
+            "📌 **Usage:** `/redeemtoken <amount>`\n\n"
+            f"💲 **Rate:** {TOKEN_RATE} coins = 🎟 1 Token\n\n"
+            "💡 Examples:\n"
+            f"`/redeemtoken {TOKEN_RATE}` → 🎟 1 Token\n"
+            f"`/redeemtoken {TOKEN_RATE * 3}` → 🎟 3 Tokens"
+        )
+        return
+
+    # ✅ Step 2: Validate amount
+    try:
+        amount = int(args[1])
+        if amount <= 0:
+            raise ValueError("Amount must be a positive number.")
+        if amount % TOKEN_RATE != 0:
+            raise ValueError(f"Amount must be a multiple of {TOKEN_RATE} (e.g., {TOKEN_RATE}, {TOKEN_RATE*2}, {TOKEN_RATE*3}).")
+    except ValueError as e:
+        error_message = (
+            str(e)
+            if "multiple" in str(e)
+            else "❌ Invalid amount. Please enter a valid number."
+        )
+        await message.reply_text(
+            f"{error_message}\n\n"
+            f"💲 **Rate:** {TOKEN_RATE} coins = 🎟 1 Token"
+        )
+        return
+
+    # ✅ Step 3: Check user balance
+    user_balance, user_tokens = await get_balance(user_id)
+    if user_balance < amount:
+        await message.reply_text(
+            f"❌ You don’t have enough coins!\n\n"
+            f"💰 Your Balance: {user_balance} coins\n"
+            f"🔒 Required: {amount} coins\n\n"
+            f"💲 **Rate:** {TOKEN_RATE} coins = 🎟 1 Token"
+        )
+        return
+
+    # ✅ Step 4: Calculate tokens
+    tokens_to_add = amount // TOKEN_RATE
+
+    # ✅ Step 5: Update DB
+    await user_collection.update_one(
+        {'id': user_id},
+        {'$inc': {'balance': -amount, 'tokens': tokens_to_add}}
+    )
+
+    # ✅ Step 6: Send confirmation
+    updated_balance, updated_tokens = await get_balance(user_id)
+    await message.reply_text(
+        f"🎉 **Redeem Successful!**\n\n"
+        f"🔁 You exchanged: `{amount}` coins → 🎟 `{tokens_to_add}` token(s)\n\n"
+        f"💲 **Rate:** {TOKEN_RATE} coins = 🎟 1 Token\n\n"
+        f"💰 New Balance: `{updated_balance}` coins\n"
+        f"🎟 New Tokens: `{updated_tokens}`"
+    )

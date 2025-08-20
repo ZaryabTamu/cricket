@@ -32,7 +32,7 @@ async def handle_search(client, message, query=None, page=1, is_callback=False):
             rarity_emoji = rarity_map.get(character['rarity'], "❓")  # Default to ❓ if rarity is not found
             response += (
                 f"◈⌠{rarity_emoji}⌡ **{index}** {character['name']}\n"
-                f"Anime: {character['anime']}\n"
+                f"Team: {character['anime']}\n"
                 f"ID: {character['id']}\n\n"
             )
 

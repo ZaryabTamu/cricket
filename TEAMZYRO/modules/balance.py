@@ -219,32 +219,78 @@ async def kill_handler(client, message):
 @app.on_message(filters.command("give"))
 @require_power("VIP")  # Only VIPs can use this
 async def give_handler(client: Client, message: Message):
+    # Must reply to a user
     if not message.reply_to_message:
-        await message.reply_text("Reply to a user to give them coins or tokens.")
+        await message.reply_text("⚠️ Please **reply** to a user's message to give them coins or tokens.")
         return
 
     args = message.command
     if len(args) < 3:
-        await message.reply_text("Usage: /give [c|t] [amount]\n\n`c` = coins\n`t` = tokens")
+        await message.reply_text(
+            "📌 **Usage:** `/give <option> <amount>`\n\n"
+            "🔹 `c <amount>` — Give coins 💰\n"
+            "🔹 `t <amount>` — Give tokens 🎫\n\n"
+            "💡 Example:\n"
+            "`/give c 100`\n"
+            "`/give t 5`"
+        )
         return
 
     option = args[1].lower()
+
+    # Validate amount
     try:
         amount = int(args[2])
         if amount <= 0:
             raise ValueError
     except ValueError:
-        await message.reply_text("Amount must be a positive number.")
+        await message.reply_text("❌ Invalid amount. Please enter a **positive number**.")
         return
 
+    # Get recipient details
     recipient_id = message.reply_to_message.from_user.id
     recipient_name = html.escape(message.reply_to_message.from_user.first_name or str(recipient_id))
 
     if option == 'c':
         await user_collection.update_one({'id': recipient_id}, {'$inc': {'balance': amount}})
-        await message.reply_text(f"✅ {amount} coins have been added to {recipient_name}'s balance.")
+        await message.reply_text(
+            f"💰 **Coins Added!**\n\n"
+            f"👤 User: {recipient_name}\n"
+            f"➕ Amount: `{amount}` coins\n"
+            f"✅ Successfully credited to their balance."
+        )
+
+        await client.send_message(
+            chat_id=recipient_id,
+            text=(
+                f"🎉 **You Received Coins!**\n\n"
+                f"💰 Amount: `{amount}` coins\n"
+                f"👤 From: {html.escape(message.from_user.first_name)}"
+            )
+        )
+
     elif option == 't':
         await user_collection.update_one({'id': recipient_id}, {'$inc': {'tokens': amount}})
-        await message.reply_text(f"✅ {amount} tokens have been added to {recipient_name}'s account.")
+        await message.reply_text(
+            f"🎫 **Tokens Added!**\n\n"
+            f"👤 User: {recipient_name}\n"
+            f"➕ Amount: `{amount}` tokens\n"
+            f"✅ Successfully credited to their account."
+        )
+
+        await client.send_message(
+            chat_id=recipient_id,
+            text=(
+                f"🎉 **You Received Tokens!**\n\n"
+                f"🎫 Amount: `{amount}` tokens\n"
+                f"👤 From: {html.escape(message.from_user.first_name)}"
+            )
+        )
+
     else:
-        await message.reply_text("Invalid option. Use `c` for coins or `t` for tokens.")
+        await message.reply_text(
+            "❌ Invalid option.\n\n"
+            "📌 Use:\n"
+            "🔹 `c` = Coins 💰\n"
+            "🔹 `t` = Tokens 🎫"
+        )

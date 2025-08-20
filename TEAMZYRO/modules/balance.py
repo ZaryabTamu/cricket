@@ -27,65 +27,84 @@ async def pay(client: Client, message: Message):
     sender_id = message.from_user.id
     args = message.command
 
+    # If no amount provided
     if len(args) < 2:
-        await message.reply_text("Usage: /pay <amount> [@username/user_id] or reply to a user.")
+        await message.reply_text(
+            "⚠️ **Usage:** `/pay <amount> [@username/user_id]` or reply to a user.\n\n"
+            "💡 Example: `/pay 100 @username`"
+        )
         return
 
+    # Validate amount
     try:
         amount = int(args[1])
         if amount <= 0:
             raise ValueError
     except ValueError:
-        await message.reply_text("Invalid amount. Please enter a positive number.")
+        await message.reply_text("❌ Invalid amount. Please enter a positive number.")
         return
 
     recipient_id = None
     recipient_name = None
 
+    # If replying to a user
     if message.reply_to_message:
         recipient_id = message.reply_to_message.from_user.id
         recipient_name = message.reply_to_message.from_user.first_name
+
+    # If username/user_id provided
     elif len(args) > 2:
         try:
             recipient_id = int(args[2])
         except ValueError:
-            recipient_username = args[2].lstrip('@')  # Remove @ from username
-            user_data = await user_collection.find_one({'username': recipient_username}, {'id': 1, 'first_name': 1})
+            recipient_username = args[2].lstrip('@')  # remove '@'
+            user_data = await user_collection.find_one(
+                {'username': recipient_username}, {'id': 1, 'first_name': 1}
+            )
             if user_data:
                 recipient_id = user_data['id']
                 recipient_name = user_data.get('first_name', recipient_username)
             else:
-                await message.reply_text("Recipient not found. Please check the username or reply to a user.")
+                await message.reply_text("🙅 Recipient not found. Please reply to a user or provide a valid username/ID.")
                 return
 
     if not recipient_id:
-        await message.reply_text("Recipient not found. Reply to a user or provide a valid user ID/username.")
+        await message.reply_text("⚠️ Recipient not found. Reply to a user or provide a valid user ID/username.")
         return
 
+    # Check sender balance
     sender_balance, _ = await get_balance(sender_id)
     if sender_balance < amount:
-        await message.reply_text("Insufficient balance.")
+        await message.reply_text("💸 Insufficient balance! You don’t have enough coins.")
         return
 
+    # Update balances
     await user_collection.update_one({'id': sender_id}, {'$inc': {'balance': -amount}})
     await user_collection.update_one({'id': recipient_id}, {'$inc': {'balance': amount}})
 
     updated_sender_balance, _ = await get_balance(sender_id)
     updated_recipient_balance, _ = await get_balance(recipient_id)
 
-    # Use first name or ID for recipient in the response
+    # Display names
     recipient_display = html.escape(recipient_name or str(recipient_id))
     sender_display = html.escape(message.from_user.first_name or str(sender_id))
 
+    # Notify sender
     await message.reply_text(
-        f"✅ You paid {amount} coins to {recipient_display}.\n"
-        f"💰 Your New Balance: {updated_sender_balance} coins"
+        f"✅ **Payment Successful!**\n\n"
+        f"👤 You sent **{amount} 💰 coins** to **{recipient_display}**.\n"
+        f"💳 **Your New Balance:** {updated_sender_balance} coins"
     )
 
+    # Notify recipient
     await client.send_message(
         chat_id=recipient_id,
-        text=f"🎉 You received {amount} coins from {sender_display}!\n"
-        f"💰 Your New Balance: {updated_recipient_balance} coins"
+        text=(
+            f"🎉 **You Received a Payment!**\n\n"
+            f"💸 **Amount:** {amount} coins\n"
+            f"👤 **From:** {sender_display}\n"
+            f"💳 **Your New Balance:** {updated_recipient_balance} coins"
+        )
     )
 
 @app.on_message(filters.command("kill"))

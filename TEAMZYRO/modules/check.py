@@ -6,17 +6,24 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQ
 import asyncio 
 
 @app.on_message(filters.command("check"))
+
+
+ @app.on_message(filters.command("check"))
 async def check_character(client, message):
     args = message.command
     if len(args) < 2:
-        await message.reply_text("Please provide a Character ID: `/check <character_id>`")
+        await message.reply_text(
+            "❌ Please provide a Character ID.\n\n"
+            "✅ Example: `/check 01`",
+            quote=True
+        )
         return
 
     character_id = args[1]
     character = await character_collection.find_one({'id': character_id})
 
     if not character:
-        await message.reply_text("Character not found.")
+        await message.reply_text("⚠️ Character not found.", quote=True)
         return
 
     # Power nikaalo using rarity

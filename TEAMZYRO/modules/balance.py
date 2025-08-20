@@ -110,31 +110,42 @@ async def pay(client: Client, message: Message):
 @app.on_message(filters.command("kill"))
 @require_power("VIP")
 async def kill_handler(client, message):
-    # Get the user_id from the reply message
-    if message.reply_to_message:
-        user_id = message.reply_to_message.from_user.id
-    else:
-        await message.reply_text("Please reply to a user's message to use the /kill command.")
+    # Check if command is used as a reply
+    if not message.reply_to_message:
+        await message.reply_text("⚠️ Please **reply** to a user's message to use the `/kill` command.")
         return
 
+    user_id = message.reply_to_message.from_user.id
     command_args = message.text.split()
 
     if len(command_args) < 2:
-        await message.reply_text("Please specify an option: `c` to delete character, `f` to delete full data, or `b` to delete balance.")
+        await message.reply_text(
+            "📌 **Usage:** `/kill <option>`\n\n"
+            "🔹 `c <character_id>` — Remove a character from the user.\n"
+            "🔹 `f` — Delete the **entire user data**.\n"
+            "🔹 `b <amount>` — Deduct coins from balance.\n\n"
+            "💡 Example:\n"
+            "`/kill c 01`\n"
+            "`/kill f`\n"
+            "`/kill b 100`"
+        )
         return
 
     option = command_args[1]
 
     try:
+        # 🔥 Delete FULL user data
         if option == 'f':
-            # Delete full user data
             await user_collection.delete_one({"id": user_id})
-            await message.reply_text("The full data of the user has been deleted.")
+            await message.reply_text(
+                f"💀 **Full Wipe Executed!**\n\n"
+                f"🧹 All data for user [`{user_id}`] has been **completely deleted** from the database."
+            )
 
+        # 🎭 Delete a specific character
         elif option == 'c':
-            # Delete specific character from the user's collection
             if len(command_args) < 3:
-                await message.reply_text("Please specify a character ID to remove.")
+                await message.reply_text("⚠️ Please specify a **character ID** to remove.\n\nExample: `/kill c 01`")
                 return
 
             char_id = command_args[2]
@@ -145,44 +156,63 @@ async def kill_handler(client, message):
                 updated_characters = [c for c in characters if c.get('id') != char_id]
 
                 if len(updated_characters) == len(characters):
-                    await message.reply_text(f"No character with ID {char_id} found in the user's collection.")
+                    await message.reply_text(f"❌ No character with ID `{char_id}` found in this user's collection.")
                     return
 
                 # Update user collection
                 await user_collection.update_one({"id": user_id}, {"$set": {"characters": updated_characters}})
-                await message.reply_text(f"Character with ID {char_id} has been removed from the user's collection.")
+                await message.reply_text(
+                    f"🗡 **Character Removed!**\n\n"
+                    f"🆔 Character ID: `{char_id}`\n"
+                    f"👤 User ID: `{user_id}`\n\n"
+                    f"✅ Successfully deleted from their collection."
+                )
             else:
-                await message.reply_text(f"No characters found in the user's collection.")
+                await message.reply_text("📭 This user has **no characters** in their collection.")
 
+        # 💰 Deduct balance
         elif option == 'b':
-            # Check if amount is provided
             if len(command_args) < 3:
-                await message.reply_text("Please specify an amount to deduct from balance.")
+                await message.reply_text("⚠️ Please specify an **amount** to deduct.\n\nExample: `/kill b 100`")
                 return
 
             try:
                 amount = int(command_args[2])
+                if amount <= 0:
+                    raise ValueError
             except ValueError:
-                await message.reply_text("Invalid amount. Please enter a valid number.")
+                await message.reply_text("❌ Invalid amount. Please enter a **positive number**.")
                 return
 
             # Fetch user balance
             user_data = await user_collection.find_one({"id": user_id}, {"balance": 1})
             if user_data and "balance" in user_data:
                 current_balance = user_data["balance"]
-                new_balance = max(0, current_balance - amount)  # Ensure balance doesn't go negative
-                
-                await user_collection.update_one({"id": user_id}, {"$set": {"balance": new_balance}})
-                await message.reply_text(f"{amount} has been deducted from the user's balance. New balance: {new_balance}")
-            else:
-                await message.reply_text("The user has no balance to deduct from.")
+                new_balance = max(0, current_balance - amount)  # Prevent negative balance
 
+                await user_collection.update_one({"id": user_id}, {"$set": {"balance": new_balance}})
+                await message.reply_text(
+                    f"💸 **Balance Deduction Successful!**\n\n"
+                    f"👤 User ID: `{user_id}`\n"
+                    f"➖ Deducted: `{amount}` coins\n"
+                    f"💰 New Balance: `{new_balance}` coins"
+                )
+            else:
+                await message.reply_text("💰 This user has **no balance** to deduct from.")
+
+        # ❌ Invalid option
         else:
-            await message.reply_text("Invalid option. Use `c` for character, `f` for full data, or `b {amount}` to deduct balance.")
+            await message.reply_text(
+                "❌ Invalid option.\n\n"
+                "📌 **Valid Options:**\n"
+                "🔹 `c <character_id>` — Remove a character\n"
+                "🔹 `f` — Delete full user data\n"
+                "🔹 `b <amount>` — Deduct coins"
+            )
 
     except Exception as e:
         print(f"Error in /kill command: {e}")
-        await message.reply_text("An error occurred while processing the request. Please try again later.")
+        await message.reply_text("⚠️ An unexpected error occurred while processing the request. Please try again later.")
 
 
 

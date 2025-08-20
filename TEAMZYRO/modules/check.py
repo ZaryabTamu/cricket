@@ -6,9 +6,6 @@ from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQ
 import asyncio 
 
 @app.on_message(filters.command("check"))
-
-
- @app.on_message(filters.command("check"))
 async def check_character(client, message):
     args = message.command
     if len(args) < 2:

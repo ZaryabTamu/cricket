@@ -217,7 +217,7 @@ Each result includes:
     "new_char": {
         "HELP_NAME": "Nᴇᴡ Cʜᴀʀ",
         "HELP": """
-➤ /addchar character-name anime-name - Upload a character with an image.
+➤ /addchar character-name team-name - Upload a character with an image.
 
 Admins can approve or reject the request using the provided buttons.
 

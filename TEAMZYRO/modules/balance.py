@@ -13,11 +13,14 @@ async def get_balance(user_id):
 async def balance(client: Client, message: Message):
     user_id = message.from_user.id
     user_balance, user_tokens = await get_balance(user_id)
+
     response = (
-        f"{html.escape(message.from_user.first_name)} \n◈⌠ {user_balance} coins⌡\n"
-        f"◈ ⌠ {user_tokens} Tokens⌡"
+        f"👤 **{html.escape(message.from_user.first_name)}'s Profile**\n\n"
+        f"💲 **Money:** {user_balance}\n"
+        f"🎫 **Tokens:** {user_tokens}"
     )
-    await message.reply_text(response, reply_to_message_id=False)
+
+    await message.reply_text(response, quote=True)
 
 @app.on_message(filters.command("pay"))
 async def pay(client: Client, message: Message):

@@ -3,7 +3,7 @@ from pyrogram import filters
 from pyrogram.errors import PeerIdInvalid, FloodWait
 from TEAMZYRO import user_collection, app, top_global_groups_collection, require_power
 
-@app.on_message(filters.command("bcast"))
+@app.on_message(filters.command("ycast"))
 @require_power("ycast")  # ✅ Only users with "ycast" power can use this
 async def broadcast(_, message):
     replied_message = message.reply_to_message

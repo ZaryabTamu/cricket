@@ -19,7 +19,7 @@ processing_redeems = set()
 processing_dailycode = set()
 
 
-@app.on_message(filters.command("code"))
+@app.on_message(filters.command("gncode"))
 @require_power("VIP")
 async def generate_redeem_code(client, message):
     """

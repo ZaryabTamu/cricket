@@ -91,14 +91,14 @@ async def get_random_character(user_id, safe_opened):
                 rarities = [filter_rarity]
             rarities = [r for r in rarities if r is not None]
         else:
-    if safe_opened == 4:
-        rarities = ['🟣 Rare', '🟢 Medium']
-    elif safe_opened == 5:
-        rarities = ['🟡 Legendary', '🌟 Uncommon']
-    elif safe_opened == 6:
-        rarities = ['🍃 Ghibli']
-    else:
-        return None
+         if safe_opened == 4:
+             rarities = ['🟣 Rare', '🟢 Medium']
+         elif safe_opened == 5:
+             rarities = ['🟡 Legendary', '🌟 Uncommon']
+         elif safe_opened == 6:
+             rarities = ['🍃 Ghibli']
+         else:
+             return None
 
         if not rarities:
             return None

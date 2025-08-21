@@ -190,7 +190,7 @@ async def find_anime_ids(client: Client, message: Message):
         # Extract anime name from the command
         args = message.text.split(maxsplit=1)
         if len(args) < 2:
-            await message.reply_text("Please provide an anime name. Usage: /findteam {anime name}")
+            await message.reply_text("Please provide an team name. Usage: /findteam {anime name}")
             return
 
         anime_name = args[1].strip().lower()

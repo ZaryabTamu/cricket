@@ -6,14 +6,14 @@ from TEAMZYRO.unit.zyro_rarity import rarity_map  # Importing rarity_map
 
 SUDO_USERS = SUDO
 
-@app.on_message(filters.command("cdelete"))
+@app.on_message(filters.command("delete"))
 @require_power("delete_character")
 async def delete_handler(client, message):
     try:
         # Extract arguments from the command
         args = message.text.split()
         if len(args) != 2:
-            await message.reply_text("Incorrect format... Please use: /gdelete ID")
+            await message.reply_text("Incorrect format... Please use: /delete ID")
             return
 
         character_id = args[1]
@@ -38,13 +38,13 @@ async def delete_handler(client, message):
 
 import time
 
-@app.on_message(filters.command("cupdate"))
+@app.on_message(filters.command("update"))
 @require_power("update_character")
 async def update(client: Client, message: Message):
     try:
         args = message.text.split()
         if len(args) != 4:
-            await message.reply_text('Incorrect format. Please use: /gupdate id field new_value')
+            await message.reply_text('Incorrect format. Please use: /update id field new_value')
             return
 
         character_id = args[1]
@@ -184,13 +184,13 @@ async def update_multiple(client: Client, message: Message):
         await message.reply_text(f'Error: {str(e)}')
 
 
-@app.on_message(filters.command("findani") & filters.user(SUDO_USERS))
+@app.on_message(filters.command("findteam") & filters.user(SUDO_USERS))
 async def find_anime_ids(client: Client, message: Message):
     try:
         # Extract anime name from the command
         args = message.text.split(maxsplit=1)
         if len(args) < 2:
-            await message.reply_text("Please provide an anime name. Usage: /findani {anime name}")
+            await message.reply_text("Please provide an anime name. Usage: /findteam {anime name}")
             return
 
         anime_name = args[1].strip().lower()

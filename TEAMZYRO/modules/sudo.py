@@ -9,7 +9,7 @@ sudo_users = db['sudo_users']
 
 # Powers with emojis
 ALL_POWERS = {
-    "add_character": "➕ Add Character",
+    "add_character": "🌟 Add Character",
     "delete_character": "🗑 Delete Character",
     "update_character": "✏️ Update Character",
     "approve_request": "✅ Approve Request",

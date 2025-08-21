@@ -222,19 +222,24 @@ Each result includes:
 Admins can approve or reject the request using the provided buttons.
 
 ➤ Rarity options:
-- ⚪️ Common
-- 🟣 Rare
-- 🟡 Legendary
-- 🟢 Medium
-- 💮 Special Edition
-- 🔮 Limited Edition
-- 🎐 Celestial
-- 💖 Valentine
-- 🎃 Halloween
-- ❄️ Winter
-- 🌧 Rainy
-- 💸 Expensive
-- 👑 V. I. P.
+1. ⚪ Common  
+2. ⭐ Basic  
+3. ⚡ Standard  
+4. 🟢 Medium  
+5. 🟣 Rare  
+6. 🟡 Legendary  
+7. 🌟 Uncommon  
+8. 💮 Special Edition  
+9. 🍃 Ghibli  
+10. ⚜ Royal  
+11. 🎃 X Verse  
+12. 🌌 Cosmic  
+13. 🔮 Limited Edition  
+14. ❄️ Ethereal  
+15. 🔱 Ultimate  
+16. ♾️ Immortal Teams  
+17. 🧿 Premium  
+18. 👑 Supreme  
 
 ➤ Admin Commands:
 - Approve a pending character request.

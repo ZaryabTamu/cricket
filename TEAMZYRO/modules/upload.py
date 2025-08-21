@@ -6,34 +6,41 @@ from gridfs import GridFS
 from TEAMZYRO import application, CHARA_CHANNEL_ID, SUPPORT_CHAT, OWNER_ID, collection, user_collection, db, SUDO, rarity_map, ZYRO, require_power
 
 # Define the wrong format message and rarity map
-WRONG_FORMAT_TEXT = """Wrong ❌ format...  eg. /upload reply to photo Virat-Kholi Royal-Challengers-Bengaluru 16
+WRONG_FORMAT_TEXT = """❌ Wrong format!
 
-format:- /upload reply cricketer-name team-name rarity-number
+✅ Correct usage:
+Reply to a photo and send:
+`/upload Virat-Kohli Royal-Challengers-Bengaluru 10`
 
-use rarity number accordingly rarity Map
+📌 Format:
+`/upload cricketer-name team-name rarity-number`
+
+📝 Notes:
+• Use hyphens `-` between words (no spaces).
+• `rarity-number` must be chosen from the map below.
 
 rarity_map = {
-    1: "⚪️ Common",
-    2: "🟣 Rare",
-    3: "🟡 Legendary",
+    1: "⚪ Common",
+    2: "⭐ Basic",
+    3: "⚡ Standard",
     4: "🟢 Medium",
-    5: "💮 Special Edition",
-    6: "🔮 Limited Edition",
-    7: "🎐 Celestial",
-    8: "💖 Valentine",
-    9: "🎃 Halloween",
-    10: "❄️ Winter",
-    11: "💸 Expensive",
-    12: "💌 AMV",
-    13: "🏖 Summer",
-    14: "🧬 X-Verse",
-    15: "✨ Neon",
-    16: "⚜ Royal",
-    17: "🎨 Holi Addition",
-    18: "🥵 Erotic"
+    5: "🟣 Rare",
+    6: "🟡 Legendary",
+    7: "🌟 Uncommon",
+    8: "💮 Special Edition",
+    9: "🍃 Ghibli",
+    10: "⚜ Royal",
+    11: "🎃 X Verse",
+    12: "🌌 Cosmic",
+    13: "🔮 Limited Edition",
+    14: "❄️ Ethereal",
+    15: "🔱 Ultimate",
+    16: "♾️ Immortal Teams",
+    17: "🧿 Premium",
+    18: "👑 Supreme"
 }
-
 """
+
 
 async def find():
     cursor = collection.find().sort('id', 1)
@@ -96,7 +103,7 @@ import asyncio
 
 upload_lock = asyncio.Lock()  # Lock for handling concurrent uploads
 
-@ZYRO.on_message(filters.command(["gupload"]))
+@ZYRO.on_message(filters.command(["upload"]))
 @require_power("add_character")
 async def ul(client, message):
     global upload_lock

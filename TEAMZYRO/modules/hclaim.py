@@ -17,7 +17,7 @@ async def format_time_delta(delta):
     return f"{int(hours)}h {int(minutes)}m {int(seconds)}s" if hours or minutes or seconds else "0s"
 
 # Fetch unique characters not yet claimed by the user
-async def get_unique_characters(user_id, target_rarities=['⚪ Common','⚪️ Common', '🟣 Rare', '🟡 Legendary']):
+async def get_unique_characters(user_id, target_rarities=['⚪ Common', '⭐ Basic', '⚡ Standard', '🟢 Medium', '🟣 Rare']):
     try:
         # Get the already claimed character ids
         user_data = await user_collection.find_one({'id': user_id}, {'characters.id': 1})
@@ -74,7 +74,7 @@ async def mclaim(_, message: t.Message):
             formatted_time = await format_time_delta(remaining_time)
             return await message.reply_text(f"⏳ *You've already claimed today! Next reward in:* `{formatted_time}`")
 
-        # Fetch a unique character for the user
+        # Fetch a unique character for the user (only from allowed rarities)
         unique_characters = await get_unique_characters(user_id)
         if not unique_characters:
             return await message.reply_text("🚫 *No characters available to claim at the moment. Please try again later.*")
@@ -90,11 +90,11 @@ async def mclaim(_, message: t.Message):
             await message.reply_photo(
                 photo=character['img_url'],
                 caption=(
-                    f"🎊 ℂ𝕆ℕ�ℝ�𝕋𝕌𝕃𝔸𝕋𝕀𝕆ℕ {mention}! 🎉\n"
+                    f"🎊 ℂ𝕆ℕ𝔾ℝ𝔸𝕋𝕌𝕃𝔸𝕋𝕀𝕆ℕ {mention}! 🎉\n"
                     f"🌸 𝐍𝐚𝐦𝐞 : {character['name']}\n"
                     f"🐾 𝐑𝐚𝐫𝐢𝐭𝐲 : {character['rarity']}\n"
                     f"⛩️ 𝐓𝐞𝐚𝐦 : {character['anime']}\n"
-                    f"💫 ℭ𝔬𝔪𝔢 𝔟𝔞�𝔨 𝔱𝔬𝔪𝔬�𝔯𝔯𝔬� 𝔣𝔬𝔯 𝔞𝔫𝔬𝔱𝔥𝔢𝔯 𝔠𝔩𝔞𝔦𝔪!"
+                    f"💫 ℭ𝔬𝔪𝔢 𝔟𝔞𝔠𝔨 𝔱𝔬𝔪𝔬𝔯𝔯𝔬𝔴 𝔣𝔬𝔯 𝔞𝔫𝔬𝔱𝔥𝔢𝔯 𝔠𝔩𝔞𝔦𝔪!"
                 )
             )
 

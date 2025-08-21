@@ -31,7 +31,7 @@ api_hash = "22f05593e2f2f365ebc1fcc03446a8c8"
 
 TOKEN = "8498629295:AAHPB-qMKSL5EUJzoLN4bcidiEwU0PH-8rk"
 CHARA_CHANNEL_ID = "CollectCricketergroup "
-GLOG = CHARA_CHANNEL_ID
+GLOG = "zlogx"
 
 SUPPORT_CHAT_ID = os.getenv("SUPPORT_CHAT_ID", "-1002613457547")
 mongo_url = "mongodb+srv://I-LOVE-PDF-BOT:I-LOVE-PDF-BOT@cluster0.c51o3a9.mongodb.net/?retryWrites=true&w=majority"

@@ -16,23 +16,22 @@ async def delete_message(chat_id, message_id, context):
         print(f"Error deleting message: {e}")
 
 # ✅ Rarity weights (Common 60% → Ethereal 0.1%)
+# ✅ Rarity weights (Common 60% → Limited Edition 0.1%)
 RARITY_WEIGHTS = {
     "⚪ Common": (60, True),
     "⭐ Basic": (15, True),
     "⚡ Standard": (10, True),
     "🟢 Medium": (6, True),
-    "🔥 Advanced": (4, True),
     "🟣 Rare": (2, True),
     "🟡 Legendary": (1.2, True),
     "🌟 Uncommon": (0.9, True),
     "💮 Special Edition": (0.7, True),
+    "🍃 Ghibli": (0.4, True),          # 🔥 Advanced → 🍃 Ghibli
     "⚜ Royal": (0.2, True),
     "🎃 X Verse": (0.4, True),
     "🌌 Cosmic": (0.3, True),
-    "🔮 Limited Edition": (0.2, True),
-    "❄️ Ethereal": (0.1, True),
+    "🔮 Limited Edition": (0.1, True),  # ✅ Final rarity (13th)
 }
-
 async def send_image(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
 

@@ -127,7 +127,7 @@ async def ul(client, message):
 
             # Validate rarity value
             if rarity not in rarity_map:
-                await message.reply_text("Invalid rarity value. Please use a value between 1 and 16.")
+                await message.reply_text("Invalid rarity value. Please use a value between 1 and 18.")
                 return
 
             rarity_text = rarity_map[rarity]

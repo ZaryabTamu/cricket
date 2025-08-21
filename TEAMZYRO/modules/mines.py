@@ -26,7 +26,9 @@ rarity_map = {
     15: "✨ Neon",
     16: "⚜ Royal",
     17: "🎨 Holi Addition",
-    18: "🥵 Erotic"
+    18: "🥵 Erotic",
+    19: "🌟 Uncommon",   # Added back
+    20: "🍃 Ghibli"     # Added back
 }
 
 # Game settings

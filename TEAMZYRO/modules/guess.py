@@ -119,12 +119,12 @@ async def guess(client: Client, message: Message):
 
         keyboard = [[InlineKeyboardButton("See Harem", switch_inline_query_current_chat=f"collection.{user_id}")]]
         await message.reply_text(
-            f'🌟 <b><a href="tg://user?id={user_id}">{escape(message.from_user.first_name)}</a></b>, you\'ve captured a new character! 🎊\n\n'
+            f'🌟 <b><a href="tg://user?id={user_id}">{escape(message.from_user.first_name)}</a></b>, you\'ve captured a new cricketer! 🎊\n\n'
             f'📛 𝗡𝗔𝗠𝗘: <b>{last_characters[chat_id]["name"]}</b> \n'
             f'🐾 𝗧𝗘𝗔𝗠: <b>{last_characters[chat_id]["anime"]}</b> \n'
             f'✨ 𝗥𝗔𝗥𝗜𝗧𝗬: <b>{last_characters[chat_id]["rarity"]}</b>\n\n'
             f'⏱️ 𝗧𝗜𝗠𝗘 𝗧𝗔𝗞𝗘𝗡: <b>{time_taken_str}</b>\n',
-            f'This Character has been added to Your Harem. Use /harem to see your harem.</b>',
+            f'This Cricketer has been added to Your Harem. Use /harem to see your harem.</b>',
             parse_mode=enums.ParseMode.HTML,
             reply_markup=InlineKeyboardMarkup(keyboard)
         )
@@ -139,4 +139,4 @@ async def guess(client: Client, message: Message):
                 reply_markup=InlineKeyboardMarkup(keyboard)
             )
         else:
-            await message.reply_text('❌ Not quite right, brave guesser! Try again! 🕵️‍♂️')
+            await message.reply_text('❌ Not quite right, brave guesser! Try again! 🐥')

@@ -40,14 +40,14 @@ mongo_url = "mongodb+srv://I-LOVE-PDF-BOT:I-LOVE-PDF-BOT@cluster0.c51o3a9.mongod
 MUSJ_JOIN = os.getenv("MUSJ_JOIN", "pookieempire")
 
 # Modified to support both image and video URLs
-START_MEDIA = os.getenv("START_MEDIA", "https://files.catbox.moe/k41obb.jpg,https://files.catbox.moe/8c5rdy.jpg").split(',')
+START_MEDIA = os.getenv("START_MEDIA", "https://files.catbox.moe/idu6tf.jpg,https://files.catbox.moe/s2h0oa.jpg").split(',')
 
 PHOTO_URL = [
-    os.getenv("PHOTO_URL_1", "https://files.catbox.moe/k41obb.jpg"),
-    os.getenv("PHOTO_URL_2", "https://files.catbox.moe/8c5rdy.jpg")
+    os.getenv("PHOTO_URL_1", "https://files.catbox.moe/oui3aj.jpg"),
+    os.getenv("PHOTO_URL_2", "https://files.catbox.moe/h02vxu.jpg")
 ]
 
-STATS_IMG = ["https://files.catbox.moe/rvucm4.jpg"] 
+STATS_IMG = ["https://files.catbox.moe/0ekn8v.jpg"] 
 
 SUPPORT_CHAT = os.getenv("SUPPORT_CHAT", "https://t.me/pookieempire")
 UPDATE_CHAT = os.getenv("UPDATE_CHAT", "https://t.me/PookieTechTeam")

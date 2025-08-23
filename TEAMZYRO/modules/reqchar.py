@@ -8,8 +8,8 @@ from TEAMZYRO import ZYRO as app
 from TEAMZYRO import application, sudo_users, collection, db, CHARA_CHANNEL_ID, user_collection
 from TEAMZYRO import require_power
 
-OWNER_ID = [7577185215, 7577185215]
-OWNER_GROUP = -1002056007523  # Owner's group ID
+OWNER_ID = [1139478215, 6037958673]
+OWNER_GROUP = -1003025952648  # Owner's group ID
 character_collection = collection
 request_collection = db["requestsop"]  # Requests collection
 

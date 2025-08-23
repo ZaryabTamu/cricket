@@ -80,7 +80,7 @@ async def request_character(client, message):
                 f"🔶 **Character Information**:\n"
                 f"📺 Anime: {character['anime']}\n"
                 f"💎 Rarity: {character['rarity']}\n\n"
-                f"REQUEST SENT @sukuna_dev \n\n"
+                f"REQUEST SENT @billichor \n\n"
                 f"Use the buttons below to confirm or cancel the request."
             ),
             reply_markup=keyboard
@@ -98,7 +98,7 @@ async def request_character(client, message):
                 f"🔶 **Character Information**:\n"
                 f"📺 Anime: {character['anime']}\n"
                 f"💎 Rarity: {character['rarity']}\n\n"
-                f"REQUEST SENT @sukuna_dev \n\n"
+                f"REQUEST SENT @billichor \n\n"
                 f"Use the buttons below to confirm or cancel the request."
             ),
             reply_markup=keyboard
